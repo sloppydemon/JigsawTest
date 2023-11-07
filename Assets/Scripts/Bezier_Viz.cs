@@ -6,12 +6,14 @@ public class Bezier_Viz : MonoBehaviour
 {
     public List<Vector2> ControlPoints;
     public GameObject PointPrefab;
-    LineRenderer[] mLineRenderers;
+    LineRenderer[2] mLineRenderers;
     List<GameObject> mPointGameObjects;
     public Color BezierCurveColour;
     public Color LineColour;
     public float LineWidth;
     public Material LineMaterial;
+
+
     private LineRenderer CreateLine()
     {
         GameObject obj = new GameObject();
