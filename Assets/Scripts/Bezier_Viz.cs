@@ -4,14 +4,17 @@ using UnityEngine;
 
 public class Bezier_Viz : MonoBehaviour
 {
-    public List<Vector2> ControlPoints;
+    public List<Vector3> ControlPoints;
     public GameObject PointPrefab;
     LineRenderer[] mLineRenderers;
-    List<GameObject> mPointGameObjects;
+    LineRenderer lineRenderer;
+    LineRenderer curveRenderer;
+    public List<GameObject> mPointGameObjects;
     public Color BezierCurveColour;
     public Color LineColour;
     public float LineWidth;
     public Material LineMaterial;
+    List<Vector3> pts;
 
 
     private LineRenderer CreateLine()
@@ -61,14 +64,16 @@ public class Bezier_Viz : MonoBehaviour
         mLineRenderers = new LineRenderer[2];
         mLineRenderers[0] = CreateLine();
         mLineRenderers[1] = CreateLine();
+        lineRenderer = mLineRenderers[0];
+        curveRenderer = mLineRenderers[1];
 
         // set a name to the game objects for the LineRenderers
         // to distingush them.
         mLineRenderers[0].gameObject.name = "LineRenderer_obj_0";
         mLineRenderers[1].gameObject.name = "LineRenderer_obj_1";
 
-        // Create the instances of PointPrefab
-        // to show the control points.
+        //Create the instances of PointPrefab
+        //to show the control points.
         for (int i = 0; i < ControlPoints.Count; ++i)
         {
             GameObject ob = Instantiate(PointPrefab,
@@ -77,15 +82,15 @@ public class Bezier_Viz : MonoBehaviour
             ob.name = "ControlPoint_" + i.ToString();
             mPointGameObjects.Add(ob);
         }
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        LineRenderer lineRenderer = mLineRenderers[0];
-        LineRenderer curveRenderer = mLineRenderers[1];
 
-        List<Vector2> pts = new List<Vector2>();
+
+        pts = new List<Vector3>();
 
         for (int k = 0; k < mPointGameObjects.Count; ++k)
         {
@@ -102,7 +107,7 @@ public class Bezier_Viz : MonoBehaviour
 
         // we take the control points from the list of points in the scene.
         // recalculate points every frame.
-        List<Vector2> curve = BezierCurve.PointList2(pts, 0.01f);
+        List<Vector3> curve = BezierCurve.PointList3(pts, 0.01f);
         curveRenderer.startColor = BezierCurveColour;
         curveRenderer.endColor = BezierCurveColour;
         curveRenderer.positionCount = curve.Count;

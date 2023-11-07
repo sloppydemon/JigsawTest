@@ -277,13 +277,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 20, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!114 &330585547
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -476,15 +476,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ControlPoints:
-  - {x: -5, y: 0}
-  - {x: 3, y: 4}
-  - {x: 7, y: -4}
+  - {x: -5, y: 0, z: 0}
+  - {x: 3, y: 0, z: 4}
+  - {x: 7, y: 0, z: -4}
   PointPrefab: {fileID: 909093795695442865, guid: 734c60d4f2ca6544aa18d375c3eea645,
     type: 3}
-  BezierCurveColour: {r: 1, g: 0.37421376, b: 0.37421376, a: 0}
-  LineColour: {r: 1, g: 0.94176894, b: 0.48742133, a: 0}
-  LineWidth: 1
-  LineMaterial: {fileID: 0}
+  mPointGameObjects: []
+  BezierCurveColour: {r: 1, g: 0.37421376, b: 0.37421376, a: 1}
+  LineColour: {r: 1, g: 0.94176894, b: 0.48742133, a: 1}
+  LineWidth: 0.05
+  LineMaterial: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
 --- !u!4 &571384263
 Transform:
   m_ObjectHideFlags: 0
