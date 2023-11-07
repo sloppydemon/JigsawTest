@@ -6,7 +6,7 @@ public class Bezier_Viz : MonoBehaviour
 {
     public List<Vector2> ControlPoints;
     public GameObject PointPrefab;
-    LineRenderer[2] mLineRenderers;
+    LineRenderer[] mLineRenderers;
     List<GameObject> mPointGameObjects;
     public Color BezierCurveColour;
     public Color LineColour;
@@ -49,9 +49,9 @@ public class Bezier_Viz : MonoBehaviour
             Debug.Log("Cannot create any new control points. Max number is 16");
             return;
         }
-        GameObject obj = Instantiate(PointPrefab, p, Quaternion.identity);
-        obj.name = "ControlPoint_" + mPointGameObjects.Count.ToString();
-        mPointGameObjects.Add(obj);
+        GameObject ob = Instantiate(PointPrefab, p, Quaternion.identity);
+        ob.name = "ControlPoint_" + mPointGameObjects.Count.ToString();
+        mPointGameObjects.Add(ob);
     }
 
     // Start is called before the first frame update
@@ -71,11 +71,11 @@ public class Bezier_Viz : MonoBehaviour
         // to show the control points.
         for (int i = 0; i < ControlPoints.Count; ++i)
         {
-            GameObject obj = Instantiate(PointPrefab,
+            GameObject ob = Instantiate(PointPrefab,
               ControlPoints[i],
               Quaternion.identity);
-            obj.name = "ControlPoint_" + i.ToString();
-            mPointGameObjects.Add(obj);
+            ob.name = "ControlPoint_" + i.ToString();
+            mPointGameObjects.Add(ob);
         }
     }
 
@@ -110,10 +110,9 @@ public class Bezier_Viz : MonoBehaviour
         {
             curveRenderer.SetPosition(i, curve[i]);
         }
-
     }
 
-    
 
-    
+
+
 }
