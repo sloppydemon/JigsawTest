@@ -36,16 +36,17 @@ public class Bezier_Viz : MonoBehaviour
         {
             if (e.clickCount == 2 && e.button == 0)
             {
-                Vector2 rayPos = new Vector2(
+                Vector3 rayPos = new Vector3(
                     Camera.main.ScreenToWorldPoint(Input.mousePosition).x,
-                    Camera.main.ScreenToWorldPoint(Input.mousePosition).y
+                    Camera.main.ScreenToWorldPoint(Input.mousePosition).z,
+                    0
                     );
                 InsertNewControlPoint(rayPos);
             }
         }
     }
 
-    void InsertNewControlPoint(Vector2 p)
+    void InsertNewControlPoint(Vector3 p)
     {
         if (mPointGameObjects.Count >= 16)
         {
