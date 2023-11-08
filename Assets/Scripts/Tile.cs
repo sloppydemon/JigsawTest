@@ -4,9 +4,8 @@ using UnityEngine;
 
 namespace Puzzle
 {
-    public class Tile : MonoBehaviour
+    public class Tile
     {
-
         #region Static Variables and Functions
         // The padding in pixels for the jigsaw tile.
         // As explained above in the diagram, we are 
@@ -18,7 +17,7 @@ namespace Puzzle
         public static int TileSize = 100;
 
         // These are the control points for our Bezier curve.
-        // These control points do not change and are marked readonly.
+        // These control points do not change are are readonly.
         public static readonly List<Vector2> ControlPoints = new List<Vector2>()
         {
             new Vector2(0, 0),
@@ -41,6 +40,9 @@ namespace Puzzle
 
         // The template Bezier curve.
         public static List<Vector2> BezCurve = BezierCurve.PointList2(ControlPoints, 0.001f);
+
+
+        public static readonly Color TransparentColor = new Color(0.0f, 0.0f, 0.0f, 0.0f);
         #endregion
 
         #region Enumerations
@@ -62,6 +64,20 @@ namespace Puzzle
         }
         #endregion
 
+        #region Properties
+        public Texture2D FinalCut { get; private set; }
+        #endregion
+
+        #region Private variables
+        // The original texture used to create this Jigsaw tile.
+        // We are not going to change this original texture.
+        // Instead, we are going to create a new texture and
+        // set the values to either pixels from the original
+        // texture or transparent (if the pixel falls outside
+        // the curves or straight lines (defined by the enum
+        // PosNegType.
+        private Texture2D mOriginalTex;
+
         // The array of PosNegType operations to be performed on 
         // each of the four directions.
         private PosNegType[] mPosNeg = new PosNegType[4]
@@ -72,44 +88,35 @@ namespace Puzzle
             PosNegType.NONE
         };
 
-        #region Properties
-        public Texture2D FinalCut { get; private set; }
+        // A 2d bollean array that stores whether a particular
+        // pixel is visited. This is needed for the flood fill.
+        private bool[,] mVisited;
+
+        // A stack needed for the flood fill of the textures.
+        private Stack<Vector2Int> mStack = new Stack<Vector2Int>();
         #endregion
 
-        // The original texture used to create this Jigsaw tile.
-        // We are not going to change this original texture.
-        // Instead, we are going to create a new texture and
-        // set the values to either pixels from the original
-        // texture or transparent (if the pixel falls outside
-        // the curves or straight lines (defined by the enum
-        // PosNegType.
-        public Texture2D mOriginalTex;
+        public int xIndex = 0;
+        public int yIndex = 0;
 
-        public void SetPosNegType(Direction dir, PosNegType type)
-        {
-            mPosNeg[(int)dir] = type;
-        }
+        public static TilesSorting TilesSorting { get; set; } = new TilesSorting();
+
+        #region Public Methods
 
         // The constructor.
         public Tile(Texture2D tex)
         {
-            TransparentColor = new Color(1,1,1,0);
             int tileSizeWithPadding = 2 * Padding + TileSize;
-            if (tex.width != tileSizeWithPadding ||
-              tex.height != tileSizeWithPadding)
-            {
-                Debug.Log("Unsupported texture dimension for Jigsaw tile");
-                return;
-            }
+            //if (tex.width != tileSizeWithPadding || tex.height != tileSizeWithPadding)
+            //{
+            //    Debug.Log("Unsupported texture dimension for Jigsaw tile");
+            //    return;
+            //}
 
             mOriginalTex = tex;
 
             // Create a new texture with width and height as Padding + TileSize + Padding.
-            FinalCut = new Texture2D(
-              tileSizeWithPadding,
-              tileSizeWithPadding,
-              TextureFormat.ARGB32,
-              false);
+            FinalCut = new Texture2D(tileSizeWithPadding, tileSizeWithPadding, TextureFormat.ARGB32, false);
 
             // Initialize the newly create texture with transparent colour.
             for (int i = 0; i < tileSizeWithPadding; ++i)
@@ -121,52 +128,112 @@ namespace Puzzle
             }
         }
 
+        public void SetPosNegType(Direction dir, PosNegType type)
+        {
+            mPosNeg[(int)dir] = type;
+        }
+
+        public PosNegType GetPosNegType(Direction dir)
+        {
+            return mPosNeg[(int)dir];
+        }
+
         public void Apply()
         {
             FloodFillInit();
             FloodFill();
             FinalCut.Apply();
         }
+        #endregion
 
-        // A 2d boolean array that stores whether a particular
-        // pixel is visited. We need this array for the flood fill.
-        private bool[,] mVisited;
-        // A stack needed for the flood fill of the textures.
-        private Stack<Vector2Int> mStack = new Stack<Vector2Int>();
-
-        public Color TransparentColor;
-
-        public void FloodFillInit()
+        public static GameObject CreateGameObjectFromTile(Tile tile)
         {
-            int tileSizeWithPadding = 2 * Padding + TileSize;
+            // Create a game object for the tile.
+            GameObject obj = new GameObject();
 
-            mVisited = new bool[tileSizeWithPadding, tileSizeWithPadding];
-            for (int i = 0; i < tileSizeWithPadding; ++i)
+            // Give a name that is recognizable for the GameObject.
+            obj.name = "TileGameObj_" + tile.xIndex.ToString() + "_" + tile.yIndex.ToString();
+
+            // Set the position of this GameObject.
+            // We will use the xIndex and yIndex to find the actual 
+            // position of the tile. We can get this position by multiplying
+            // xIndex by TileSize and yIndex by TileSize.
+            obj.transform.position = new Vector3(tile.xIndex * TileSize, tile.yIndex * TileSize, 0.0f);
+
+            // Create a SpriteRenderer.
+            SpriteRenderer spriteRenderer = obj.AddComponent<SpriteRenderer>();
+
+            // Set the sorting layer for the tile
+            spriteRenderer.sortingLayerName = "Tiles";
+
+            // Set the sprite created with the FinalCut 
+            // texture of the tile to the SpriteRenderer
+            spriteRenderer.sprite = SpriteUtils.CreateSpriteFromTexture2D(
+                tile.FinalCut,
+                0,
+                0,
+                Padding * 2 + TileSize,
+                Padding * 2 + TileSize);
+
+            // Add a box colliders so that we can handle 
+            // picking/selection of the Tiles.
+            BoxCollider2D box = obj.AddComponent<BoxCollider2D>();
+
+            // add the TileMovement script component.
+            TileMovement tm = obj.AddComponent<TileMovement>();
+            tm.tile = tile;
+
+            Tile.TilesSorting.Add(spriteRenderer);
+
+            return obj;
+        }
+
+        #region Helper functions to visualize data
+        public static LineRenderer CreateLineRenderer(Color color, float lineWidth = 1.0f)
+        {
+            GameObject obj = new GameObject();
+
+            LineRenderer lr = obj.AddComponent<LineRenderer>();
+
+            lr.startColor = color;
+            lr.endColor = color;
+            lr.startWidth = lineWidth;
+            lr.endWidth = lineWidth;
+            lr.material = new Material(Shader.Find("Sprites/Default"));
+            return lr;
+        }
+
+        private Dictionary<(Direction, PosNegType), LineRenderer> mLineRenderers =
+            new Dictionary<(Direction, PosNegType), LineRenderer>();
+
+        // An utility/helper function to show the curve
+        // using a LineRenderer.
+        public void DrawCurve(Direction dir, PosNegType type, Color color)
+        {
+            if (!mLineRenderers.ContainsKey((dir, type)))
             {
-                for (int j = 0; j < tileSizeWithPadding; ++j)
-                {
-                    mVisited[i, j] = false;
-                }
+                mLineRenderers.Add((dir, type), CreateLineRenderer(color));
             }
 
-            List<Vector2> pts = new List<Vector2>();
-            for (int i = 0; i < mPosNeg.Length; ++i)
-            {
-                pts.AddRange(CreateCurve((Direction)i, mPosNeg[i]));
-            }
+            LineRenderer lr = mLineRenderers[(dir, type)];
+            lr.startColor = color;
+            lr.endColor = color;
+            lr.gameObject.name = "LineRenderer_" + dir.ToString() + "_" + type.ToString();
+            List<Vector2> pts = Tile.CreateCurve(dir, type);
 
-            // Now we should have a closed curve.
-            // To verify check by drawing the pts to a line renderer.
+            lr.positionCount = pts.Count;
             for (int i = 0; i < pts.Count; ++i)
             {
-                mVisited[(int)pts[i].x, (int)pts[i].y] = true;
+                lr.SetPosition(i, pts[i]);
             }
+        }
+        #endregion
 
-            // start from center.
-            Vector2Int start = new Vector2Int(tileSizeWithPadding / 2, tileSizeWithPadding / 2);
-
-            mVisited[start.x, start.y] = true;
-            mStack.Push(start);
+        void Fill(int x, int y)
+        {
+            Color c = mOriginalTex.GetPixel(x + xIndex * TileSize, y + yIndex * TileSize);
+            c.a = 1.0f;
+            FinalCut.SetPixel(x, y, c);
         }
 
         public void FloodFill()
@@ -235,27 +302,37 @@ namespace Puzzle
             }
         }
 
-        void Fill(int x, int y)
+        public void FloodFillInit()
         {
-            Color c = mOriginalTex.GetPixel(x, y);
-            c.a = 1.0f;
-            FinalCut.SetPixel(x, y, c);
-        }
+            int tileSizeWithPadding = 2 * Padding + TileSize;
 
-        static void TranslatePoints(List<Vector2> iList, Vector2 offset)
-        {
-            for (int i = 0; i < iList.Count; ++i)
+            mVisited = new bool[tileSizeWithPadding, tileSizeWithPadding];
+            for (int i = 0; i < tileSizeWithPadding; ++i)
             {
-                iList[i] += offset;
+                for (int j = 0; j < tileSizeWithPadding; ++j)
+                {
+                    mVisited[i, j] = false;
+                }
             }
-        }
 
-        static void InvertY(List<Vector2> iList)
-        {
-            for (int i = 0; i < iList.Count; ++i)
+            List<Vector2> pts = new List<Vector2>();
+            for (int i = 0; i < mPosNeg.Length; ++i)
             {
-                iList[i] = new Vector2(iList[i].x, -iList[i].y);
+                pts.AddRange(CreateCurve((Direction)i, mPosNeg[i]));
             }
+
+            // Now we should have a closed curve.
+            // To verify check by drawing the pts to a line renderer.
+            for (int i = 0; i < pts.Count; ++i)
+            {
+                mVisited[(int)pts[i].x, (int)pts[i].y] = true;
+            }
+
+            // start from center.
+            Vector2Int start = new Vector2Int(tileSizeWithPadding / 2, tileSizeWithPadding / 2);
+
+            mVisited[start.x, start.y] = true;
+            mStack.Push(start);
         }
 
         public static List<Vector2> CreateCurve(Tile.Direction dir, PosNegType type)
@@ -287,6 +364,7 @@ namespace Puzzle
                         }
                     }
                     break;
+
                 case Tile.Direction.RIGHT:
                     if (type == PosNegType.POS)
                     {
@@ -308,6 +386,7 @@ namespace Puzzle
                         }
                     }
                     break;
+
                 case Tile.Direction.DOWN:
                     if (type == PosNegType.POS)
                     {
@@ -327,6 +406,7 @@ namespace Puzzle
                         }
                     }
                     break;
+
                 case Tile.Direction.LEFT:
                     if (type == PosNegType.POS)
                     {
@@ -352,6 +432,23 @@ namespace Puzzle
             return pts;
         }
 
+        #region Points transform utilities
+        static void TranslatePoints(List<Vector2> iList, Vector2 offset)
+        {
+            for (int i = 0; i < iList.Count; ++i)
+            {
+                iList[i] += offset;
+            }
+        }
+
+        static void InvertY(List<Vector2> iList)
+        {
+            for (int i = 0; i < iList.Count; ++i)
+            {
+                iList[i] = new Vector2(iList[i].x, -iList[i].y);
+            }
+        }
+
         static void SwapXY(List<Vector2> iList)
         {
             for (int i = 0; i < iList.Count; ++i)
@@ -359,76 +456,6 @@ namespace Puzzle
                 iList[i] = new Vector2(iList[i].y, iList[i].x);
             }
         }
-
-        public static LineRenderer CreateLineRenderer(Color color, float lineWidth = 1.0f)
-        {
-            GameObject obj = new GameObject();
-
-            LineRenderer lr = obj.AddComponent<LineRenderer>();
-
-            lr.startColor = color;
-            lr.endColor = color;
-            lr.startWidth = lineWidth;
-            lr.endWidth = lineWidth;
-            lr.material = new Material(Shader.Find("Sprites/Default"));
-            return lr;
-        }
-
-        private Dictionary<(Direction, PosNegType), LineRenderer> mLineRenderers =
-            new Dictionary<(Direction, PosNegType), LineRenderer>();
-
-        // An utility/helper function to show the curve
-        // using a LineRenderer.
-        public void DrawCurve(Direction dir, PosNegType type, Color color)
-        {
-            if (!mLineRenderers.ContainsKey((dir, type)))
-            {
-                mLineRenderers.Add((dir, type), CreateLineRenderer(color));
-            }
-
-            LineRenderer lr = mLineRenderers[(dir, type)];
-            lr.startColor = color;
-            lr.endColor = color;
-            lr.gameObject.name = "LineRenderer_" + dir.ToString() + "_" + type.ToString();
-            List<Vector2> pts = Tile.CreateCurve(dir, type);
-
-            lr.positionCount = pts.Count;
-            for (int i = 0; i < pts.Count; ++i)
-            {
-                lr.SetPosition(i, pts[i]);
-            }
-        }
-
-        //public void CreateMesh(Direction dir, PosNegType type, Color color, Mesh mesh, MeshFilter mf)
-        //{
-        //    if (!mLineRenderers.ContainsKey((dir, type)))
-        //    {
-        //        mLineRenderers.Add((dir, type), CreateLineRenderer(color));
-        //    }
-
-        //    Mesh lr = mLineRenderers[(dir, type)];
-        //    lr.startColor = color;
-        //    lr.endColor = color;
-        //    lr.gameObject.name = "LineRenderer_" + dir.ToString() + "_" + type.ToString();
-        //    List<Vector2> pts = Tile.CreateCurve(dir, type);
-
-        //    lr.positionCount = pts.Count;
-        //    for (int i = 0; i < pts.Count; ++i)
-        //    {
-        //        lr.SetPosition(i, pts[i]);
-        //    }
-        //}
-        // Start is called before the first frame update
-        void Start()
-        {
-
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-
-        }
+        #endregion
     }
 }
-

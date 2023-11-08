@@ -41,3 +41,15 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Opaque
+    uniqueID: 4241841883
+    locked: 0
+  - name: Transparent
+    uniqueID: 3489584885
+    locked: 0
+  - name: DropShadow
+    uniqueID: 2766503451
+    locked: 0
+  - name: Tiles
+    uniqueID: 1011317497
+    locked: 0

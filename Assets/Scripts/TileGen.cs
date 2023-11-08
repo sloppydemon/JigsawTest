@@ -1,66 +1,75 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.U2D;
+using Puzzle;
 
-public class TileGen : MonoBehaviour
+public class TilesGen : MonoBehaviour
 {
-    public Texture2D img;
-    private Texture2D mOriginalTex;
-    public Color transparent;
-    //private Texture2D mTextureOriginal;
+    public string ImageFilename;
+
+    private Texture2D mTextureOriginal;
+
+    void Start()
+    {
+        CreateBaseTexture();
+        //TestTileCurves();
+        TestTileFloodFill();
+    }
 
     void CreateBaseTexture()
     {
         // Load the main image.
-        //mTextureOriginal = SpriteUtils.LoadTexture(Image);
+        mTextureOriginal = SpriteUtils.LoadTexture(ImageFilename);
+        if (!mTextureOriginal.isReadable)
+        {
+            Debug.Log("Texture is not readable");
+            return;
+        }
 
-        SpriteRenderer spriteRenderer =
-          gameObject.AddComponent<SpriteRenderer>();
+        SpriteRenderer spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
         spriteRenderer.sprite = SpriteUtils.CreateSpriteFromTexture2D(
-            img,
+            mTextureOriginal,
             0,
             0,
-            img.width,
-            img.height);
+            mTextureOriginal.width,
+            mTextureOriginal.height);
     }
 
     void TestTileCurves()
     {
-        Puzzle.Tile tile = new Puzzle.Tile(img);
-        tile.DrawCurve(Puzzle.Tile.Direction.UP, Puzzle.Tile.PosNegType.POS, Color.red);
-        tile.DrawCurve(Puzzle.Tile.Direction.UP, Puzzle.Tile.PosNegType.NEG, Color.green);
-        tile.DrawCurve(Puzzle.Tile.Direction.UP, Puzzle.Tile.PosNegType.NONE, Color.white);
+        Tile tile = new Tile(mTextureOriginal);
+        tile.DrawCurve(Tile.Direction.UP, Tile.PosNegType.POS, Color.red);
+        tile.DrawCurve(Tile.Direction.UP, Tile.PosNegType.NEG, Color.green);
+        tile.DrawCurve(Tile.Direction.UP, Tile.PosNegType.NONE, Color.white);
 
-        tile.DrawCurve(Puzzle.Tile.Direction.RIGHT, Puzzle.Tile.PosNegType.POS, Color.red);
-        tile.DrawCurve(Puzzle.Tile.Direction.RIGHT, Puzzle.Tile.PosNegType.NEG, Color.green);
-        tile.DrawCurve(Puzzle.Tile.Direction.RIGHT, Puzzle.Tile.PosNegType.NONE, Color.white);
+        tile.DrawCurve(Tile.Direction.RIGHT, Tile.PosNegType.POS, Color.red);
+        tile.DrawCurve(Tile.Direction.RIGHT, Tile.PosNegType.NEG, Color.green);
+        tile.DrawCurve(Tile.Direction.RIGHT, Tile.PosNegType.NONE, Color.white);
 
-        tile.DrawCurve(Puzzle.Tile.Direction.DOWN, Puzzle.Tile.PosNegType.POS, Color.red);
-        tile.DrawCurve(Puzzle.Tile.Direction.DOWN, Puzzle.Tile.PosNegType.NEG, Color.green);
-        tile.DrawCurve(Puzzle.Tile.Direction.DOWN, Puzzle.Tile.PosNegType.NONE, Color.white);
+        tile.DrawCurve(Tile.Direction.DOWN, Tile.PosNegType.POS, Color.red);
+        tile.DrawCurve(Tile.Direction.DOWN, Tile.PosNegType.NEG, Color.green);
+        tile.DrawCurve(Tile.Direction.DOWN, Tile.PosNegType.NONE, Color.white);
 
-        tile.DrawCurve(Puzzle.Tile.Direction.LEFT, Puzzle.Tile.PosNegType.POS, Color.red);
-        tile.DrawCurve(Puzzle.Tile.Direction.LEFT, Puzzle.Tile.PosNegType.NEG, Color.green);
-        tile.DrawCurve(Puzzle.Tile.Direction.LEFT, Puzzle.Tile.PosNegType.NONE, Color.white);
+        tile.DrawCurve(Tile.Direction.LEFT, Tile.PosNegType.POS, Color.red);
+        tile.DrawCurve(Tile.Direction.LEFT, Tile.PosNegType.NEG, Color.green);
+        tile.DrawCurve(Tile.Direction.LEFT, Tile.PosNegType.NONE, Color.white);
     }
 
     void TestTileFloodFill()
     {
-        Puzzle.Tile tile = new Puzzle.Tile(img);
-        tile.TransparentColor = transparent;
+        Tile tile = new Tile(mTextureOriginal);
 
-        tile.SetPosNegType(Puzzle.Tile.Direction.UP, Puzzle.Tile.PosNegType.POS);
-        tile.SetPosNegType(Puzzle.Tile.Direction.RIGHT, Puzzle.Tile.PosNegType.POS);
-        tile.SetPosNegType(Puzzle.Tile.Direction.DOWN, Puzzle.Tile.PosNegType.POS);
-        tile.SetPosNegType(Puzzle.Tile.Direction.LEFT, Puzzle.Tile.PosNegType.POS);
+        tile.SetPosNegType(Tile.Direction.UP, Tile.PosNegType.NEG);
+        tile.SetPosNegType(Tile.Direction.RIGHT, Tile.PosNegType.NONE);
+        tile.SetPosNegType(Tile.Direction.DOWN, Tile.PosNegType.NEG);
+        tile.SetPosNegType(Tile.Direction.LEFT, Tile.PosNegType.NEG);
 
         // Uncomment the following 4 lines of code if you want to see the 
         // curves drawn on the tile too.
-        tile.DrawCurve(Puzzle.Tile.Direction.UP, Puzzle.Tile.PosNegType.POS, Color.white);
-        tile.DrawCurve(Puzzle.Tile.Direction.RIGHT, Puzzle.Tile.PosNegType.POS, Color.white);
-        tile.DrawCurve(Puzzle.Tile.Direction.DOWN, Puzzle.Tile.PosNegType.POS, Color.white);
-        tile.DrawCurve(Puzzle.Tile.Direction.LEFT, Puzzle.Tile.PosNegType.POS, Color.white);
+        tile.DrawCurve(Tile.Direction.UP, Tile.PosNegType.NEG, Color.white);
+        tile.DrawCurve(Tile.Direction.RIGHT, Tile.PosNegType.NONE, Color.white);
+        tile.DrawCurve(Tile.Direction.DOWN, Tile.PosNegType.NEG, Color.white);
+        tile.DrawCurve(Tile.Direction.LEFT, Tile.PosNegType.NEG, Color.white);
 
         tile.Apply();
 
@@ -73,19 +82,5 @@ public class TileGen : MonoBehaviour
             tile.FinalCut.width,
             tile.FinalCut.height);
         spriteRenderer.sprite = sprite;
-    }
-
-    void Start()
-    {
-        CreateBaseTexture();
-        //TestTileCurves();
-        TestTileFloodFill();
-    }
-
-    
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }
