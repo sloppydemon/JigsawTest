@@ -39,7 +39,10 @@ public class MeshGen : MonoBehaviour
             {
                 if (i <= 2)
                 {
-                    verticesArray[i] = verticesArrayInput[i];
+                    //verticesArray[i] = verticesArrayInput[i];
+                    verticesArray[0] = verticesArrayInput[0];
+                    verticesArray[1] = verticesArrayInput[2];
+                    verticesArray[2] = verticesArrayInput[1];
                     indexCalc[i] = i;
                 }
                 else

@@ -399,6 +399,25 @@ namespace Puzzle
             }
         }
 
+        //public void CreateMesh(Direction dir, PosNegType type, Color color, Mesh mesh, MeshFilter mf)
+        //{
+        //    if (!mLineRenderers.ContainsKey((dir, type)))
+        //    {
+        //        mLineRenderers.Add((dir, type), CreateLineRenderer(color));
+        //    }
+
+        //    Mesh lr = mLineRenderers[(dir, type)];
+        //    lr.startColor = color;
+        //    lr.endColor = color;
+        //    lr.gameObject.name = "LineRenderer_" + dir.ToString() + "_" + type.ToString();
+        //    List<Vector2> pts = Tile.CreateCurve(dir, type);
+
+        //    lr.positionCount = pts.Count;
+        //    for (int i = 0; i < pts.Count; ++i)
+        //    {
+        //        lr.SetPosition(i, pts[i]);
+        //    }
+        //}
         // Start is called before the first frame update
         void Start()
         {

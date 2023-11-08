@@ -7,6 +7,7 @@ public class TileGen : MonoBehaviour
 {
     public Texture2D img;
     private Texture2D mOriginalTex;
+    public Color transparent;
     //private Texture2D mTextureOriginal;
 
     void CreateBaseTexture()
@@ -47,6 +48,7 @@ public class TileGen : MonoBehaviour
     void TestTileFloodFill()
     {
         Puzzle.Tile tile = new Puzzle.Tile(img);
+        tile.TransparentColor = transparent;
 
         tile.SetPosNegType(Puzzle.Tile.Direction.UP, Puzzle.Tile.PosNegType.POS);
         tile.SetPosNegType(Puzzle.Tile.Direction.RIGHT, Puzzle.Tile.PosNegType.POS);
