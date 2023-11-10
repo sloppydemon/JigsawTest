@@ -2,14 +2,59 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Puzzle;
+using UnityEditor;
 
 public class BoardGen : MonoBehaviour
 {
     //public string ImageFilename;
     public Texture2D img;
     public Transform ParentForTiles;
-
+    public int numberOfPieces;
     public bool LoadingFinished { get; set; } = false;
+
+    void OnDrawGizmos()
+    {
+        int gcd = PuzzlePieceCalc.GCD(img.width, img.height);
+        int ratioX = PuzzlePieceCalc.DimensionX(img.width, img.height);
+        int ratioY = PuzzlePieceCalc.DimensionY(img.width, img.height);
+
+        int numX = PuzzlePieceCalc.NumPiecesX(img.width, img.height, numberOfPieces);
+        int numY = PuzzlePieceCalc.NumPiecesY(img.width, img.height, numberOfPieces);
+        int diff = numberOfPieces - (numX * numY);
+        if (diff != 0)
+        {
+            numX = PuzzlePieceCalc.FactorReduction(numX, numY, numberOfPieces, true);
+            numY = PuzzlePieceCalc.FactorReduction(numY, numX, numberOfPieces, false);
+        }
+        int newdiff = numberOfPieces - (numX * numY);
+
+        if (diff == 0)
+        {
+            Handles.color = Color.green;
+            Handles.Label(transform.position, $"Image Aspect Ratio:{ratioX}:{ratioY}, GCD:{gcd}, X:{numX} Y:{numY}");
+        }
+        else
+        {
+            if (newdiff == 0)
+            {
+                Handles.color = Color.green;
+                Handles.Label(transform.position, $"Image Aspect Ratio:{ratioX}:{ratioY}, GCD:{gcd}, X:{numX} Y:{numY}, was off by {diff}, corrected difference:{newdiff}");
+            }
+            else
+            {
+                if (numberOfPieces < Mathf.Max(ratioX, ratioY))
+                {
+                    Handles.color = Color.red;
+                    Handles.Label(transform.position, $"Image Aspect Ratio:{ratioX}:{ratioY}, GCD:{gcd}, X:{numX} Y:{numY}, TOO FEW PIECES! Difference:{diff}");
+                }
+                else
+                {
+                    Handles.color = Color.yellow;
+                    Handles.Label(transform.position, $"Image Aspect Ratio:{ratioX}:{ratioY}, GCD:{gcd}, X:{numX} Y:{numY}, BAD CALCULATION! Difference:{diff}");
+                }
+            }
+        }
+    }
 
     // The opaque sprite. 
     Sprite mBaseSpriteOpaque;
