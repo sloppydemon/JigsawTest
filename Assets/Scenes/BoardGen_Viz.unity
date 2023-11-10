@@ -291,7 +291,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   img: {fileID: 2800000, guid: 80bc2de53d1bd2a49b74fb23cdd0f391, type: 3}
   ParentForTiles: {fileID: 0}
-  numberOfPieces: 28
+  numberOfPieces: 70
 --- !u!4 &1528458554
 Transform:
   m_ObjectHideFlags: 0
