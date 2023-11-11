@@ -10,7 +10,7 @@ public class GeneratePiece : MonoBehaviour
 {
     
     // Start is called before the first frame update
-    public static void Build(GameObject go, Vector3[] points, float extrusion, bool addCollider, Material frontMat, Material cardMat, string goName)
+    public static void Build(GameObject go, Vector3[] points, float extrusion, bool addCollider, Material frontMat, Material cardMat)
     {
         ProBuilderMesh m_Mesh = go.AddComponent<ProBuilderMesh>();
 
@@ -32,8 +32,11 @@ public class GeneratePiece : MonoBehaviour
             scale = new Vector2(1, 1)
         };
         m_Mesh.Refresh(RefreshMask.UV);
-        m_Mesh.gameObject.AddComponent<MeshCollider>().enabled = true;
-        m_Mesh.gameObject.GetComponent<MeshCollider>().convex = true;
+        if (addCollider)
+        {
+            m_Mesh.gameObject.AddComponent<MeshCollider>().enabled = true;
+            m_Mesh.gameObject.GetComponent<MeshCollider>().convex = true;
+        }
         //m_Mesh.faces[5].submeshIndex = 0;
 
     }
