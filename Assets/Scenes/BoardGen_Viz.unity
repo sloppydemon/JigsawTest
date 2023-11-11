@@ -514,6 +514,54 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 210709184}
   m_CullTransparentMesh: 1
+--- !u!1 &219182941
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 219182943}
+  - component: {fileID: 219182942}
+  m_Layer: 0
+  m_Name: LineGen
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &219182942
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 219182941}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97ebd3f98d0d255489619a5ef47a703b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  copyPointsDown: []
+  copyPointsUp: []
+  copyPointsLeft: []
+  copyPointsRight: []
+--- !u!4 &219182943
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 219182941}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 8.2, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &294551636
 GameObject:
   m_ObjectHideFlags: 0
@@ -1991,6 +2039,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea89016976c680140be979f920a8a659, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  LinePrefab: {fileID: 8437824450925067081, guid: 3771b27fb33ad1442bd6fa5808899c66,
+    type: 3}
   table: {fileID: 91142077}
   img: {fileID: 2800000, guid: 80bc2de53d1bd2a49b74fb23cdd0f391, type: 3}
   sizeSlider: {fileID: 1854784403}
@@ -2002,6 +2052,7 @@ MonoBehaviour:
   inputNumber: {fileID: 210709186}
   sizeInCms: 0
   sizeFactor: 0
+  bezDetail: 0.1
   cardboardMaterial: {fileID: 2100000, guid: e6606306abe99754ba399cb623820226, type: 2}
   frontMaterial: {fileID: 2100000, guid: c3afbacc96879b547a44c06dc2f35d5e, type: 2}
   ratioX: 0
@@ -2014,6 +2065,7 @@ MonoBehaviour:
   fieldOfViewMinimum: 20
   fieldOfViewMaxAddend: 90
   numberOfPieces: 400
+  GOsToDestroy: []
 --- !u!4 &1196009441
 Transform:
   m_ObjectHideFlags: 0
@@ -3181,3 +3233,4 @@ SceneRoots:
   - {fileID: 1196009441}
   - {fileID: 718283920}
   - {fileID: 91142078}
+  - {fileID: 219182943}

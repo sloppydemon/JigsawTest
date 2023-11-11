@@ -16,6 +16,7 @@ public class MeshGen : MonoBehaviour
 {
     List<Vector3> pts;
     GameObject imgObj;
+    public GameObject LinePrefab;
     public GameObject table;
     public Texture2D img;
     public Slider sizeSlider;
@@ -27,6 +28,7 @@ public class MeshGen : MonoBehaviour
     public TMP_InputField inputNumber;
     public float sizeInCms;
     public float sizeFactor;
+    public float bezDetail;
     public Material cardboardMaterial;
     public Material frontMaterial;
     public int ratioX;
@@ -46,6 +48,7 @@ public class MeshGen : MonoBehaviour
     float sizeX;
     float sizeY;
     public int numberOfPieces;
+    public List<GameObject> GOsToDestroy;
 
     
     void OnDrawGizmos()
@@ -95,6 +98,7 @@ public class MeshGen : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        GOsToDestroy = new List<GameObject>();
         pts = new List<Vector3>();
         sizeInCms = Mathf.Max(img.height, img.width) / 10f;
         sizeSlider.maxValue = 200f;
@@ -132,6 +136,19 @@ public class MeshGen : MonoBehaviour
                 new Vector3(-sizeX * 0.05f, 0, sizeY * 0.05f)
             };
         GeneratePiece.Build(imgObj, imgObjVectors, 0.005f, false, frontMaterial, cardboardMaterial);
+
+        if (buildable)
+        {
+            GenerateLines();
+        }
+        else
+        {
+            for (int i = 0; i < GOsToDestroy.Count; i++)
+            {
+                Destroy(GOsToDestroy[i]);
+            }
+        }
+
         //imgObj = ProBuilderMesh.Create(
         //    new Vector3[]
         //    {
@@ -175,6 +192,18 @@ public class MeshGen : MonoBehaviour
             table.transform.localScale = new Vector3(sizeInCms*0.0102f, 1f, sizeInCms * 0.0102f);
         }
         cam.fieldOfView = fieldOfViewMinimum + (sizeSlider.normalizedValue * fieldOfViewMaxAddend);
+
+        if (buildable)
+        {
+            GenerateLines();
+        }
+        else
+        {
+            for (int i = 0; i < GOsToDestroy.Count; i++)
+            {
+                Destroy(GOsToDestroy[i]);
+            }
+        }
         //imgObj = ProBuilderMesh.Create(
         //    new Vector3[]
         //    {
@@ -272,8 +301,57 @@ public class MeshGen : MonoBehaviour
                 }
             }
         }
+
+        if (buildable)
+        {
+            GenerateLines();
+        }
+        else
+        {
+            for (int i = 0; i < GOsToDestroy.Count; i++)
+            {
+                Destroy(GOsToDestroy[i]);
+            }
+        }
     }
 
+    public void GenerateLines()
+    {
+        for (int i = 0; i < GOsToDestroy.Count; i++)
+        {
+            Destroy(GOsToDestroy[i]);
+        }
+
+        // horizontal lines
+        for (int i = 1; i < numY;  i++)
+        {
+            List<Vector3> linePts = new List<Vector3>();
+            linePts = LineGenerator.GenerateLine(false, sizeX*0.1f, sizeY*0.1f, numX, numY, i, 0f);
+            GameObject lPF = Instantiate(LinePrefab, transform.position + new Vector3(-sizeX * 0.05f, 0.01f, -sizeY * 0.05f), Quaternion.identity);
+            lPF.name = $"X{i+1}";
+            LinePreview lPV = lPF.GetComponent<LinePreview>();
+            lPV.bezierDetail = bezDetail;
+            lPV.numCtrlPts = LineGenerator.PointsDown.Count;
+            lPV.numForThisAxis = numX;
+            lPV.pts = linePts;
+            GOsToDestroy.Add(lPF);
+        }
+
+        // vertical lines
+        for (int i = 1; i < numX; i++)
+        {
+            List<Vector3> linePts = new List<Vector3>();
+            linePts = LineGenerator.GenerateLine(true, sizeX * 0.1f, sizeY * 0.1f, numX, numY, i, 0f);
+            GameObject lPF = Instantiate(LinePrefab, transform.position + new Vector3(-sizeX*0.05f, 0.01f, -sizeY * 0.05f), Quaternion.identity);
+            lPF.name = $"Y{i + 1}";
+            LinePreview lPV = lPF.GetComponent<LinePreview>();
+            lPV.bezierDetail = bezDetail;
+            lPV.numCtrlPts = LineGenerator.PointsDown.Count;
+            lPV.numForThisAxis = numY;
+            lPV.pts = linePts;
+            GOsToDestroy.Add(lPF);
+        }
+    }
     void Update()
     {
 
