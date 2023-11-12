@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEditor.ProBuilder;
 using UnityEngine;
 using UnityEngine.ProBuilder;
@@ -10,12 +11,24 @@ public class GeneratePiece : MonoBehaviour
 {
     
     // Start is called before the first frame update
-    public static void Build(GameObject go, Vector3[] points, float extrusion, bool addCollider, Material frontMat, Material cardMat)
+    public static void Build(GameObject go, List<Vector3> points, float extrusion, bool addCollider, Material frontMat, Material cardMat, bool flipNormals, Vector2 uvScale, Vector2 uvOffset)
     {
         ProBuilderMesh m_Mesh = go.AddComponent<ProBuilderMesh>();
-
-        m_Mesh.CreateShapeFromPolygon(points, extrusion, false);
+        points = points.Distinct().ToList();
+        Debug.Log(m_Mesh.CreateShapeFromPolygon(points, extrusion, flipNormals));
+        if (m_Mesh.vertexCount == 0)
+        {
+            print($"{go.name} didn't materialize.");
+        }
         List<Face> newface = new List<Face>();
+        if (flipNormals)
+        {
+            newface.Add(m_Mesh.faces[1]);
+        }
+        else
+        {
+            newface.Add(m_Mesh.faces[0]);
+        }
         newface.Add(m_Mesh.faces[0]);
         IEnumerable<Face> newfaces = newface;
         m_Mesh.SetMaterial(m_Mesh.faces, cardMat);
@@ -25,17 +38,31 @@ public class GeneratePiece : MonoBehaviour
         m_Mesh.SetMaterial(newface, frontMat);
         m_Mesh.ToMesh();
         m_Mesh.Refresh();
-        m_Mesh.faces[0].uv = new AutoUnwrapSettings()
+        if (go.name == "ImageObject")
         {
-            anchor = AutoUnwrapSettings.Anchor.UpperLeft,
-            fill = AutoUnwrapSettings.Fill.Stretch,
-            scale = new Vector2(1, 1)
-        };
+            m_Mesh.faces[0].uv = new AutoUnwrapSettings()
+            {
+                anchor = AutoUnwrapSettings.Anchor.UpperLeft,
+                fill = AutoUnwrapSettings.Fill.Stretch,
+                scale = new Vector2(1, 1)
+            };
+        }
+        else
+        {
+            newface[0].uv = new AutoUnwrapSettings()
+            {
+                anchor = AutoUnwrapSettings.Anchor.LowerLeft,
+                fill = AutoUnwrapSettings.Fill.Tile,
+                scale = uvScale,
+                offset = uvOffset
+            };
+        }
         m_Mesh.Refresh(RefreshMask.UV);
         if (addCollider)
         {
             m_Mesh.gameObject.AddComponent<MeshCollider>().enabled = true;
             m_Mesh.gameObject.GetComponent<MeshCollider>().convex = true;
+            m_Mesh.gameObject.AddComponent<Rigidbody>();
         }
         //m_Mesh.faces[5].submeshIndex = 0;
 
