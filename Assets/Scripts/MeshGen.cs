@@ -16,6 +16,7 @@ public class MeshGen : MonoBehaviour
 {
     List<Vector3> pts;
     GameObject imgObj;
+    public Button generateButton;
     public GameObject LinePrefab;
     public GameObject table;
     public Texture2D img;
@@ -110,9 +111,10 @@ public class MeshGen : MonoBehaviour
         sizeY = img.height * SizeFactor(img.width, img.height, sizeInCms);
         sizeFactor = SizeFactor(img.width, img.height, sizeInCms);
         sizeText.text = $"{sizeX.ToString("0.0")}x{sizeY.ToString("0.0")} cm";
-        sizeSlider.onValueChanged.AddListener(delegate { sizeSliderChange(); });
-        numberSlider.onValueChanged.AddListener(delegate { numberSliderChange(); });
-        inputNumber.onEndEdit.AddListener(delegate { numberInputChanged(inputNumber.text); });
+        sizeSlider.onValueChanged.AddListener(delegate { SizeSliderChange(); });
+        numberSlider.onValueChanged.AddListener(delegate { NumberSliderChange(); });
+        inputNumber.onEndEdit.AddListener(delegate { NumberInputChanged(inputNumber.text); });
+        generateButton.onClick.AddListener(delegate { GenerateClicked(); });
         cam.fieldOfView = fieldOfViewMinimum + (sizeSlider.normalizedValue * fieldOfViewMaxAddend);
         
         gcd = PuzzlePieceCalc.GCD(img.width, img.height);
@@ -122,7 +124,7 @@ public class MeshGen : MonoBehaviour
         numberOfPieces = ratioX * ratioY * 25;
         numberSlider.value = numberOfPieces;
 
-        numberSliderChange();
+        NumberSliderChange();
         
 
         imgObj = new GameObject();
@@ -139,6 +141,8 @@ public class MeshGen : MonoBehaviour
 
         if (buildable)
         {
+            generateButton.GetComponent <Text>().color = Color.black;
+            generateButton.interactable = true;
             GenerateLines();
         }
         else
@@ -147,27 +151,12 @@ public class MeshGen : MonoBehaviour
             {
                 Destroy(GOsToDestroy[i]);
             }
+            generateButton.GetComponent <Text>().color = Color.grey;
+            generateButton.interactable = false;
         }
-
-        //imgObj = ProBuilderMesh.Create(
-        //    new Vector3[]
-        //    {
-        //        new Vector3(-sizeX*0.005f, 0, -sizeY*0.005f),
-        //        new Vector3(sizeX*0.005f, 0, -sizeY*0.005f),
-        //        new Vector3(-sizeX*0.005f, 0, sizeY*0.005f),
-        //        new Vector3(sizeX * 0.005f, 0, sizeY * 0.005f)
-        //    },
-        //    new Face[] { new Face(new int[] {0, 1, 2, 1, 3, 2 })}
-        //    );
-        //imgObj.Extrude(imgObj.faces, ExtrudeMethod.IndividualFaces, 1);
-        //imgObj.SetMaterial(imgObj.faces, cardboardMaterial);
-        //IEnumerable<Face> selected_faces = imgObj.GetSelectedFaces();
-        //imgObj.SetMaterial(selected_faces, frontMaterial);
-        //imgObj.RefreshUV(selected_faces);
-        //imgObj.Refresh();
     }
 
-    public void sizeSliderChange()
+    public void SizeSliderChange()
     {
         sizeInCms = sizeSlider.value;
         sizeX = img.width * SizeFactor(img.width, img.height, sizeInCms);
@@ -195,6 +184,8 @@ public class MeshGen : MonoBehaviour
 
         if (buildable)
         {
+            generateButton.GetComponent<Text>().color = Color.black;
+            generateButton.interactable = true;
             GenerateLines();
         }
         else
@@ -203,27 +194,12 @@ public class MeshGen : MonoBehaviour
             {
                 Destroy(GOsToDestroy[i]);
             }
+            generateButton.GetComponent<Text>().color = Color.grey;
+            generateButton.interactable = false;
         }
-        //imgObj = ProBuilderMesh.Create(
-        //    new Vector3[]
-        //    {
-        //        new Vector3(-sizeX*0.005f, 0, -sizeY*0.005f),
-        //        new Vector3(sizeX*0.005f, 0, -sizeY*0.005f),
-        //        new Vector3(-sizeX*0.005f, 0, sizeY*0.005f),
-        //        new Vector3(sizeX * 0.005f, 0, sizeY * 0.005f)
-        //    },
-        //    new Face[] { new Face(new int[] { 0, 1, 2, 1, 3, 2 }) }
-        //    );
-        //imgObj.Extrude(imgObj.faces, ExtrudeMethod.IndividualFaces, 1);
-        //imgObj.SetMaterial(imgObj.faces, cardboardMaterial);
-        //IEnumerable<Face> selected_faces = imgObj.GetSelectedFaces();
-        //imgObj.SetMaterial(selected_faces, frontMaterial);
-        //imgObj.RefreshUV(selected_faces);
-        //imgObj.Refresh();
-
     }
 
-    public void numberInputChanged(string input)
+    public void NumberInputChanged(string input)
     {
         int inputInt;
         try
@@ -248,7 +224,7 @@ public class MeshGen : MonoBehaviour
         
     }
 
-    public void numberSliderChange()
+    public void NumberSliderChange()
     {
         numberOfPieces = (int)numberSlider.value;
         numX = PuzzlePieceCalc.NumPiecesX(img.width, img.height, numberOfPieces);
@@ -304,6 +280,8 @@ public class MeshGen : MonoBehaviour
 
         if (buildable)
         {
+            generateButton.GetComponent<Text>().color = Color.black;
+            generateButton.interactable = true;
             GenerateLines();
         }
         else
@@ -312,6 +290,8 @@ public class MeshGen : MonoBehaviour
             {
                 Destroy(GOsToDestroy[i]);
             }
+            generateButton.GetComponent<Text>().color = Color.grey;
+            generateButton.interactable = false;
         }
     }
 
@@ -350,6 +330,20 @@ public class MeshGen : MonoBehaviour
             lPV.numForThisAxis = numY;
             lPV.pts = linePts;
             GOsToDestroy.Add(lPF);
+        }
+    }
+
+    public void GenerateClicked()
+    {
+        if (buildable)
+        {
+            for (int i = 0; i < numY; i++)
+            {
+                for (int j = 0; j < numX; j++)
+                {
+
+                }
+            }
         }
     }
     void Update()
