@@ -1,14 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.ProBuilder;
 using TMPro;
 using ProBuilder.Examples;
 using UnityEngine.ProBuilder.MeshOperations;
-using UnityEditor.ProBuilder;
 using UnityEditor;
 using Unity.VisualScripting;
 using UnityEngine.ProBuilder.Shapes;
@@ -67,49 +65,49 @@ public class MeshGen : MonoBehaviour
     public bool offsetsCalculated;
 
 
-    void OnDrawGizmos()
-    {
-        int gcd = PuzzlePieceCalc.GCD(img.width, img.height);
-        int ratioX = PuzzlePieceCalc.DimensionX(img.width, img.height);
-        int ratioY = PuzzlePieceCalc.DimensionY(img.width, img.height);
+    //void OnDrawGizmos()
+    //{
+    //    int gcd = PuzzlePieceCalc.GCD(img.width, img.height);
+    //    int ratioX = PuzzlePieceCalc.DimensionX(img.width, img.height);
+    //    int ratioY = PuzzlePieceCalc.DimensionY(img.width, img.height);
 
-        int numX = PuzzlePieceCalc.NumPiecesX(img.width, img.height, numberOfPieces);
-        int numY = PuzzlePieceCalc.NumPiecesY(img.width, img.height, numberOfPieces);
-        int diff = numberOfPieces - (numX * numY);
-        if (diff != 0)
-        {
-            numX = PuzzlePieceCalc.FactorReduction(numX, numY, numberOfPieces, true);
-            numY = PuzzlePieceCalc.FactorReduction(numY, numX, numberOfPieces, false);
-        }
-        int newdiff = numberOfPieces - (numX * numY);
+    //    int numX = PuzzlePieceCalc.NumPiecesX(img.width, img.height, numberOfPieces);
+    //    int numY = PuzzlePieceCalc.NumPiecesY(img.width, img.height, numberOfPieces);
+    //    int diff = numberOfPieces - (numX * numY);
+    //    if (diff != 0)
+    //    {
+    //        numX = PuzzlePieceCalc.FactorReduction(numX, numY, numberOfPieces, true);
+    //        numY = PuzzlePieceCalc.FactorReduction(numY, numX, numberOfPieces, false);
+    //    }
+    //    int newdiff = numberOfPieces - (numX * numY);
 
-        if (diff == 0)
-        {
-            Handles.color = Color.green;
-            Handles.Label(transform.position, $"Image Aspect Ratio:{ratioX}:{ratioY}, GCD:{gcd}, X:{numX} Y:{numY}");
-        }
-        else
-        {
-            if (newdiff == 0)
-            {
-                Handles.color = Color.green;
-                Handles.Label(transform.position, $"Image Aspect Ratio:{ratioX}:{ratioY}, GCD:{gcd}, X:{numX} Y:{numY}, was off by {diff}, corrected difference:{newdiff}");
-            }
-            else
-            {
-                if (numberOfPieces < Mathf.Max(ratioX, ratioY))
-                {
-                    Handles.color = Color.red;
-                    Handles.Label(transform.position, $"Image Aspect Ratio:{ratioX}:{ratioY}, GCD:{gcd}, X:{numX} Y:{numY}, TOO FEW PIECES! Difference:{diff}");
-                }
-                else
-                {
-                    Handles.color = Color.yellow;
-                    Handles.Label(transform.position, $"Image Aspect Ratio:{ratioX}:{ratioY}, GCD:{gcd}, X:{numX} Y:{numY}, BAD CALCULATION! Difference:{diff}");
-                }
-            }
-        }
-    }
+    //    if (diff == 0)
+    //    {
+    //        Handles.color = Color.green;
+    //        Handles.Label(transform.position, $"Image Aspect Ratio:{ratioX}:{ratioY}, GCD:{gcd}, X:{numX} Y:{numY}");
+    //    }
+    //    else
+    //    {
+    //        if (newdiff == 0)
+    //        {
+    //            Handles.color = Color.green;
+    //            Handles.Label(transform.position, $"Image Aspect Ratio:{ratioX}:{ratioY}, GCD:{gcd}, X:{numX} Y:{numY}, was off by {diff}, corrected difference:{newdiff}");
+    //        }
+    //        else
+    //        {
+    //            if (numberOfPieces < Mathf.Max(ratioX, ratioY))
+    //            {
+    //                Handles.color = Color.red;
+    //                Handles.Label(transform.position, $"Image Aspect Ratio:{ratioX}:{ratioY}, GCD:{gcd}, X:{numX} Y:{numY}, TOO FEW PIECES! Difference:{diff}");
+    //            }
+    //            else
+    //            {
+    //                Handles.color = Color.yellow;
+    //                Handles.Label(transform.position, $"Image Aspect Ratio:{ratioX}:{ratioY}, GCD:{gcd}, X:{numX} Y:{numY}, BAD CALCULATION! Difference:{diff}");
+    //            }
+    //        }
+    //    }
+    //}
 
     // Start is called before the first frame update
     void Start()
