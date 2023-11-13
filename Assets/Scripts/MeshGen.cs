@@ -13,6 +13,8 @@ using UnityEditor;
 using Unity.VisualScripting;
 using UnityEngine.ProBuilder.Shapes;
 using System.ComponentModel;
+using static UnityEngine.UI.GridLayoutGroup;
+using UnityEngine.SceneManagement;
 
 public class MeshGen : MonoBehaviour
 {
@@ -21,6 +23,7 @@ public class MeshGen : MonoBehaviour
     public Slider progressBar;
     public TextMeshProUGUI progressText;
     public Button generateButton;
+    public Button startButton;
     public GameObject LinePrefab;
     public GameObject table;
     public Texture2D img;
@@ -30,6 +33,10 @@ public class MeshGen : MonoBehaviour
     public TextMeshProUGUI sizeSubText;
     public TextMeshProUGUI numberText;
     public TextMeshProUGUI numberSubText;
+    public TextMeshProUGUI alertText;
+    public TextMeshProUGUI momentText;
+    public TextMeshProUGUI instructTextA;
+    public TextMeshProUGUI instructTextB;
     public TMP_InputField inputNumber;
     public float sizeInCms;
     public float sizeFactor;
@@ -107,9 +114,14 @@ public class MeshGen : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        cam.gameObject.GetComponent<CameraMouse>().enabled = false;
+        startButton.interactable = false;
+        startButton.enabled = false;
+        startButton.gameObject.SetActive(false);
         offsetsCalculated = false;
         progressBar.enabled = false;
         progressText.enabled = false;
+        alertText.text = "";
         GOsToDestroy = new List<GameObject>();
         pts = new List<Vector3>();
         sizeInCms = Mathf.Max(img.height, img.width) / 10f;
@@ -126,6 +138,7 @@ public class MeshGen : MonoBehaviour
         numberSlider.onValueChanged.AddListener(delegate { NumberSliderChange(); });
         inputNumber.onEndEdit.AddListener(delegate { NumberInputChanged(inputNumber.text); });
         generateButton.onClick.AddListener(delegate { GenerateClicked(); });
+        startButton.onClick.AddListener(delegate { StartPuzzling(); });
         cam.fieldOfView = fieldOfViewMinimum + (sizeSlider.normalizedValue * fieldOfViewMaxAddend);
 
         gcd = PuzzlePieceCalc.GCD(img.width, img.height);
@@ -499,6 +512,27 @@ public class MeshGen : MonoBehaviour
             Destroy(GOsToDestroy[i]);
         }
         Destroy(imgObj);
+        generateButton.gameObject.SetActive(false);
+        numberSlider.gameObject.SetActive(false);
+        numberText.gameObject.SetActive(false);
+        numberSubText.gameObject.SetActive(false);
+        sizeSlider.gameObject.SetActive(false);
+        sizeText.gameObject.SetActive(false);
+        sizeSubText.gameObject.SetActive(false);
+        momentText.gameObject.SetActive(false);
+        startButton.gameObject.SetActive(true);
+        startButton.enabled = true;
+        startButton.interactable = true;
+    }
+
+    public void StartPuzzling()
+    {
+        CalculateOffsets();
+        StartCoroutine(PiecesToBox());
+        cam.gameObject.GetComponent<CameraMouse>().enabled = true;
+        startButton.gameObject.SetActive(false);
+        instructTextA.gameObject.SetActive(true);
+        instructTextB.gameObject.SetActive(true);
     }
 
     public void CalculateOffsets()
@@ -506,47 +540,70 @@ public class MeshGen : MonoBehaviour
         for (int i = 0; i < puzzlePieces.Count; i++)
         {
             PuzzlePiece pieceProps = puzzlePieces[i].GetComponent<PuzzlePiece>();
+            Rigidbody pieceRB = puzzlePieces[i].GetComponent<Rigidbody>();
 
             if (pieceProps.hasNextBelow)
             {
                 pieceProps.nextBelowOffset = pieceProps.nextBelow.transform.position - puzzlePieces[i].transform.position;
+                Rigidbody nextRB = pieceProps.nextBelow.GetComponent<Rigidbody>();
+                pieceProps.nextBelowRotOS = nextRB.transform.eulerAngles - pieceRB.transform.eulerAngles;
             }
             if (pieceProps.hasNextRight)
             {
                 pieceProps.nextRightOffset = pieceProps.nextRight.transform.position - puzzlePieces[i].transform.position;
+                Rigidbody nextRB = pieceProps.nextRight.GetComponent<Rigidbody>();
+                pieceProps.nextRightRotOS = nextRB.transform.eulerAngles - pieceRB.transform.eulerAngles;
             }
             if (pieceProps.hasNextAbove)
             {
                 pieceProps.nextAboveOffset = pieceProps.nextAbove.transform.position - puzzlePieces[i].transform.position;
+                Rigidbody nextRB = pieceProps.nextAbove.GetComponent<Rigidbody>();
+                pieceProps.nextAboveRotOS = nextRB.transform.eulerAngles - pieceRB.transform.eulerAngles;
             }
             if (pieceProps.hasNextLeft)
             {
                 pieceProps.nextLeftOffset = pieceProps.nextLeft.transform.position - puzzlePieces[i].transform.position;
+                Rigidbody nextRB = pieceProps.nextLeft.GetComponent<Rigidbody>();
+                pieceProps.nextLeftRotOS = nextRB.transform.eulerAngles - pieceRB.transform.eulerAngles;
             }
         }
     }
-    //IEnumerator Waiter(GameObject piece, List<Vector3> piecePts)
+
+    IEnumerator PiecesToBox()
+    {
+        GameObject cornerUL = GameObject.FindGameObjectWithTag("BoxCornerUL");
+        GameObject cornerLR = GameObject.FindGameObjectWithTag("BoxCornerLR");
+        Vector3 vecUL = cornerUL.transform.position;
+        Vector3 vecLR = cornerLR.transform.position;
+
+        for (int i = 0; i < puzzlePieces.Count; i++)
+        {
+            Rigidbody tossRB = puzzlePieces[i].GetComponent<Rigidbody>(); 
+            float tossX = Random.Range(vecUL.x, vecLR.x);
+            float tossY = Random.Range(vecUL.y, vecLR.y);
+            float tossZ = Random.Range(vecUL.z, vecLR.z);
+            tossRB.transform.position = new Vector3(tossX, tossY, tossZ);
+            yield return null;
+            float rotateX = Random.Range(-180f, 180f);
+            float rotateY = Random.Range(-180f, 180f);
+            float rotateZ = Random.Range(-180f, 180f);
+            tossRB.transform.eulerAngles = new Vector3(rotateX, rotateY, rotateZ);
+            yield return null;
+        }
+    }
+
+    //IEnumerator WaitText()
     //{
-    //    yield return new WaitForSeconds(0.5f);
-    //    GeneratePiece.Build(piece, piecePts, pieceThickness, true, frontMaterial, cardboardMaterial);
-    //}
+    //    while (startButton.enabled = false)
+    //    {
+    //        alertText.text = "Just a moment...";
+    //        yield return null;
+    //    }
     void Update()
     {
-        if (!offsetsCalculated)
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (puzzlePieces.Count != 0)
-            {
-                PuzzlePiece pieceProps = puzzlePieces[0].GetComponent<PuzzlePiece>();
-                float magnitudes = pieceProps.nextAboveOffset.magnitude + pieceProps.nextBelowOffset.magnitude + pieceProps.nextLeftOffset.magnitude + pieceProps.nextRightOffset.magnitude;
-                if (magnitudes < 0.0000001f && magnitudes > -0.0000001f)
-                {
-                    CalculateOffsets();
-                }
-                else
-                {
-                    offsetsCalculated = true;
-                }
-            }
+            SceneManager.LoadScene (SceneManager.GetActiveScene().buildIndex, LoadSceneMode.Single);
         }
     }
 }

@@ -124,7 +124,7 @@ public class PuzzlePiece : MonoBehaviour
         {
             float tossX = Random.Range(vecUL.x, vecLR.x);
             float tossY = Random.Range(vecUL.y, vecLR.y);
-            float tossZ = Random.Range(vecLR.z, vecLR.z);
+            float tossZ = Random.Range(vecUL.z, vecLR.z);
             rb.transform.position = new Vector3(tossX, tossY, tossZ);
         }
         if (rb.velocity.magnitude > 1000)
