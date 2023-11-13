@@ -12,12 +12,11 @@ using UnityEngine.ProBuilder.MeshOperations;
 public class GeneratePiece : MonoBehaviour
 {
     
-    // Start is called before the first frame update
-    public static void Build(GameObject go, List<Vector3> points, float extrusion, bool addCollider, Material frontMat, Material cardMat, bool flipNormals, Vector2 uvScale, Vector2 uvOffset, Vector3 pivot)
+    public static void Build(GameObject go, List<Vector3> points, float extrusion, bool addCollider, Material frontMat, Material cardMat, bool flipNormals, Vector2 uvScale, Vector2 uvOffset)
     {
         ProBuilderMesh m_Mesh = go.AddComponent<ProBuilderMesh>();
         points = points.Distinct().ToList();
-        Debug.Log(m_Mesh.CreateShapeFromPolygon(points, extrusion, flipNormals));
+        m_Mesh.CreateShapeFromPolygon(points, extrusion*0.1f, flipNormals);
         if (m_Mesh.vertexCount == 0)
         {
             print($"{go.name} didn't materialize.");
@@ -31,12 +30,8 @@ public class GeneratePiece : MonoBehaviour
         {
             newface.Add(m_Mesh.faces[0]);
         }
-        newface.Add(m_Mesh.faces[0]);
         IEnumerable<Face> newfaces = newface;
         m_Mesh.SetMaterial(m_Mesh.faces, cardMat);
-        m_Mesh.SetSelectedFaces(newfaces);
-        IEnumerable<Face> selected_faces = m_Mesh.GetSelectedFaces();
-        m_Mesh.SetMaterial(selected_faces, frontMat);
         m_Mesh.SetMaterial(newface, frontMat);
         m_Mesh.ToMesh();
         m_Mesh.Refresh();
@@ -74,7 +69,5 @@ public class GeneratePiece : MonoBehaviour
             m_Mesh.gameObject.GetComponent<MeshCollider>().convex = true;
             m_Mesh.gameObject.AddComponent<Rigidbody>();
         }
-        //m_Mesh.faces[5].submeshIndex = 0;
-
     }
 }

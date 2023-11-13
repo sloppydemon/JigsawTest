@@ -59,7 +59,7 @@ public class MeshGen : MonoBehaviour
     public List<GameObject> puzzlePieces;
     public bool offsetsCalculated;
 
-    
+
     void OnDrawGizmos()
     {
         int gcd = PuzzlePieceCalc.GCD(img.width, img.height);
@@ -127,7 +127,7 @@ public class MeshGen : MonoBehaviour
         inputNumber.onEndEdit.AddListener(delegate { NumberInputChanged(inputNumber.text); });
         generateButton.onClick.AddListener(delegate { GenerateClicked(); });
         cam.fieldOfView = fieldOfViewMinimum + (sizeSlider.normalizedValue * fieldOfViewMaxAddend);
-        
+
         gcd = PuzzlePieceCalc.GCD(img.width, img.height);
         ratioX = PuzzlePieceCalc.DimensionX(img.width, img.height);
         ratioY = PuzzlePieceCalc.DimensionY(img.width, img.height);
@@ -136,7 +136,7 @@ public class MeshGen : MonoBehaviour
         numberSlider.value = numberOfPieces;
 
         NumberSliderChange();
-        
+
 
         imgObj = new GameObject();
         imgObj.transform.position = new Vector3(0, 8.155f, 0);
@@ -146,7 +146,7 @@ public class MeshGen : MonoBehaviour
         imgObjVectors.Add(new Vector3(sizeX * 0.05f, 0, -sizeY * 0.05f));
         imgObjVectors.Add(new Vector3(sizeX * 0.05f, 0, sizeY * 0.05f));
         imgObjVectors.Add(new Vector3(-sizeX * 0.05f, 0, sizeY * 0.05f));
-        GeneratePiece.Build(imgObj, imgObjVectors, pieceThickness, false, frontMaterial, cardboardMaterial, false, new Vector2(), new Vector2(), new Vector3(0,0,0));
+        GeneratePiece.Build(imgObj, imgObjVectors, pieceThickness, false, frontMaterial, cardboardMaterial, false, new Vector2(), new Vector2());
 
         if (buildable)
         {
@@ -182,10 +182,10 @@ public class MeshGen : MonoBehaviour
         imgObjVectors.Add(new Vector3(sizeX * 0.05f, 0, -sizeY * 0.05f));
         imgObjVectors.Add(new Vector3(sizeX * 0.05f, 0, sizeY * 0.05f));
         imgObjVectors.Add(new Vector3(-sizeX * 0.05f, 0, sizeY * 0.05f));
-        GeneratePiece.Build(imgObj, imgObjVectors, pieceThickness, false, frontMaterial, cardboardMaterial, false, new Vector2(), new Vector2(), new Vector3(0, 0, 0));
+        GeneratePiece.Build(imgObj, imgObjVectors, pieceThickness, false, frontMaterial, cardboardMaterial, false, new Vector2(), new Vector2());
         if (sizeInCms > 95f)
         {
-            table.transform.localScale = new Vector3(sizeInCms*0.0102f, 1f, sizeInCms * 0.0102f);
+            table.transform.localScale = new Vector3(sizeInCms * 0.0102f, 1f, sizeInCms * 0.0102f);
         }
         cam.fieldOfView = fieldOfViewMinimum + (sizeSlider.normalizedValue * fieldOfViewMaxAddend);
 
@@ -228,7 +228,7 @@ public class MeshGen : MonoBehaviour
 
         numberSlider.value = inputInt;
         inputNumber.text = "";
-        
+
     }
 
     public void NumberSliderChange()
@@ -250,7 +250,7 @@ public class MeshGen : MonoBehaviour
         {
             numberText.text = $"{numberOfPieces} pcs.";
             numberSubText.text = $"({numX}x{numY} pcs., approx. {indSizeX.ToString("0.0")}x{indSizeY.ToString("0.0")} cm apiece)";
-            numberText.color = Color.green ;
+            numberText.color = Color.green;
             numberSubText.color = Color.green;
             buildable = true;
         }
@@ -310,10 +310,10 @@ public class MeshGen : MonoBehaviour
         }
 
         // horizontal lines
-        for (int i = 1; i < numY;  i++)
+        for (int i = 1; i < numY; i++)
         {
             List<Vector3> linePts = new List<Vector3>();
-            linePts = LineGenerator.GenerateLine(false, sizeX*0.1f, sizeY*0.1f, numX, numY, i, 0f);
+            linePts = LineGenerator.GenerateLine(false, sizeX * 0.1f, sizeY * 0.1f, numX, numY, i, 0f);
             GameObject lPF = Instantiate(LinePrefab, transform.position + new Vector3(-sizeX * 0.05f, 0.01f, -sizeY * 0.05f), Quaternion.identity);
             lPF.name = $"X{i}";
             LinePreview lPV = lPF.GetComponent<LinePreview>();
@@ -329,7 +329,7 @@ public class MeshGen : MonoBehaviour
         {
             List<Vector3> linePts = new List<Vector3>();
             linePts = LineGenerator.GenerateLine(true, sizeX * 0.1f, sizeY * 0.1f, numX, numY, i, 0f);
-            GameObject lPF = Instantiate(LinePrefab, transform.position + new Vector3(-sizeX*0.05f, 0.01f, -sizeY * 0.05f), Quaternion.identity);
+            GameObject lPF = Instantiate(LinePrefab, transform.position + new Vector3(-sizeX * 0.05f, 0.01f, -sizeY * 0.05f), Quaternion.identity);
             lPF.name = $"Y{i}";
             LinePreview lPV = lPF.GetComponent<LinePreview>();
             lPV.bezierDetail = bezDetailLines;
@@ -350,7 +350,7 @@ public class MeshGen : MonoBehaviour
             progressBar.maxValue = numberOfPieces;
             progressBar.value = 0f;
             progressText.text = $"0% done";
-            puzzlePieces = new List<GameObject> ();
+            puzzlePieces = new List<GameObject>();
             for (int i = 0; i < numY; i++)
             {
                 for (int j = 0; j < numX; j++)
@@ -448,21 +448,21 @@ public class MeshGen : MonoBehaviour
                         }
                     }
                     pieceProps.piecePoints = piecePts;
-                    Vector2 uvScale = new Vector2(1f/ratioX,1f/ratioY);
+                    Vector2 uvScale = new Vector2(1f / ratioX, 1f / ratioY);
                     float xFac = 1f / (float)numX;
                     float yFac = 1f / (float)numY;
-                    Vector2 uvOffset = new Vector2(-j*xFac, -i*yFac);
+                    Vector2 uvOffset = new Vector2(-j * xFac, -i * yFac);
                     //Vector2 uvOffset = new Vector2((sizeX / numX) + (j * (sizeX / numX)), (sizeY / numY) + (j * (sizeY / numY)));
                     //Vector2 uvOffset = new Vector2(-((j+1)/numX), -((i + 1) / numY));
                     float pivotIncX = (sizeX * 0.05f) / (float)numX;
                     float pivotIncY = (sizeY * 0.05f) / (float)numY;
-                    GeneratePiece.Build(piece, piecePts, pieceThickness, true, frontMaterial, cardboardMaterial, flipNormals, uvScale, uvOffset, transform.position + new Vector3(-sizeX * 0.05f, 0.01f, -sizeY * 0.05f) + new Vector3(pivotIncX + (pivotIncX*j), 0, pivotIncY + (pivotIncY * j)));
+                    GeneratePiece.Build(piece, piecePts, pieceThickness, true, frontMaterial, cardboardMaterial, flipNormals, uvScale, uvOffset);
                     //StartCoroutine(Waiter(piece, piecePts));
                     puzzlePieces.Add(piece);
                     progressBar.value += 1f;
-                    float progressPct = (progressBar.value/numberOfPieces) * 100;
+                    float progressPct = (progressBar.value / numberOfPieces) * 100;
                     progressText.text = $"{progressPct.ToString("0.0")}% done";
-                    
+
                 }
             }
             progressBar.enabled = false;
@@ -506,7 +506,7 @@ public class MeshGen : MonoBehaviour
         for (int i = 0; i < puzzlePieces.Count; i++)
         {
             PuzzlePiece pieceProps = puzzlePieces[i].GetComponent<PuzzlePiece>();
-            
+
             if (pieceProps.hasNextBelow)
             {
                 pieceProps.nextBelowOffset = pieceProps.nextBelow.transform.position - puzzlePieces[i].transform.position;
@@ -546,7 +546,7 @@ public class MeshGen : MonoBehaviour
                 {
                     offsetsCalculated = true;
                 }
-            } 
+            }
         }
     }
 }
