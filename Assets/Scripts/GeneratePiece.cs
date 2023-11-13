@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEditor.ProBuilder;
 using UnityEngine;
 using UnityEngine.ProBuilder;
@@ -11,7 +13,7 @@ public class GeneratePiece : MonoBehaviour
 {
     
     // Start is called before the first frame update
-    public static void Build(GameObject go, List<Vector3> points, float extrusion, bool addCollider, Material frontMat, Material cardMat, bool flipNormals, Vector2 uvScale, Vector2 uvOffset)
+    public static void Build(GameObject go, List<Vector3> points, float extrusion, bool addCollider, Material frontMat, Material cardMat, bool flipNormals, Vector2 uvScale, Vector2 uvOffset, Vector3 pivot)
     {
         ProBuilderMesh m_Mesh = go.AddComponent<ProBuilderMesh>();
         points = points.Distinct().ToList();
@@ -58,6 +60,14 @@ public class GeneratePiece : MonoBehaviour
             };
         }
         m_Mesh.Refresh(RefreshMask.UV);
+        int[] pivotCtrl = new int[m_Mesh.vertexCount];
+        for (int i = 0; i < m_Mesh.vertexCount; i++)
+        {
+            pivotCtrl.Append(i);
+        }
+        m_Mesh.CenterPivot(pivotCtrl);
+        m_Mesh.ToMesh();
+        m_Mesh.Refresh();
         if (addCollider)
         {
             m_Mesh.gameObject.AddComponent<MeshCollider>().enabled = true;

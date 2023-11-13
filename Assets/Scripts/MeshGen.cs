@@ -12,11 +12,14 @@ using UnityEditor.ProBuilder;
 using UnityEditor;
 using Unity.VisualScripting;
 using UnityEngine.ProBuilder.Shapes;
+using System.ComponentModel;
 
 public class MeshGen : MonoBehaviour
 {
     List<Vector3> pts;
     GameObject imgObj;
+    public Slider progressBar;
+    public TextMeshProUGUI progressText;
     public Button generateButton;
     public GameObject LinePrefab;
     public GameObject table;
@@ -31,6 +34,7 @@ public class MeshGen : MonoBehaviour
     public float sizeInCms;
     public float sizeFactor;
     public float bezDetail;
+    public float bezDetailLines;
     public Material cardboardMaterial;
     public Material frontMaterial;
     public int ratioX;
@@ -53,6 +57,7 @@ public class MeshGen : MonoBehaviour
     public int numberOfPieces;
     public List<GameObject> GOsToDestroy;
     public List<GameObject> puzzlePieces;
+    public bool offsetsCalculated;
 
     
     void OnDrawGizmos()
@@ -102,6 +107,9 @@ public class MeshGen : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        offsetsCalculated = false;
+        progressBar.enabled = false;
+        progressText.enabled = false;
         GOsToDestroy = new List<GameObject>();
         pts = new List<Vector3>();
         sizeInCms = Mathf.Max(img.height, img.width) / 10f;
@@ -138,7 +146,7 @@ public class MeshGen : MonoBehaviour
         imgObjVectors.Add(new Vector3(sizeX * 0.05f, 0, -sizeY * 0.05f));
         imgObjVectors.Add(new Vector3(sizeX * 0.05f, 0, sizeY * 0.05f));
         imgObjVectors.Add(new Vector3(-sizeX * 0.05f, 0, sizeY * 0.05f));
-        GeneratePiece.Build(imgObj, imgObjVectors, pieceThickness, false, frontMaterial, cardboardMaterial, false, new Vector2(), new Vector2());
+        GeneratePiece.Build(imgObj, imgObjVectors, pieceThickness, false, frontMaterial, cardboardMaterial, false, new Vector2(), new Vector2(), new Vector3(0,0,0));
 
         if (buildable)
         {
@@ -174,7 +182,7 @@ public class MeshGen : MonoBehaviour
         imgObjVectors.Add(new Vector3(sizeX * 0.05f, 0, -sizeY * 0.05f));
         imgObjVectors.Add(new Vector3(sizeX * 0.05f, 0, sizeY * 0.05f));
         imgObjVectors.Add(new Vector3(-sizeX * 0.05f, 0, sizeY * 0.05f));
-        GeneratePiece.Build(imgObj, imgObjVectors, pieceThickness, false, frontMaterial, cardboardMaterial, false, new Vector2(), new Vector2());
+        GeneratePiece.Build(imgObj, imgObjVectors, pieceThickness, false, frontMaterial, cardboardMaterial, false, new Vector2(), new Vector2(), new Vector3(0, 0, 0));
         if (sizeInCms > 95f)
         {
             table.transform.localScale = new Vector3(sizeInCms*0.0102f, 1f, sizeInCms * 0.0102f);
@@ -309,7 +317,7 @@ public class MeshGen : MonoBehaviour
             GameObject lPF = Instantiate(LinePrefab, transform.position + new Vector3(-sizeX * 0.05f, 0.01f, -sizeY * 0.05f), Quaternion.identity);
             lPF.name = $"X{i}";
             LinePreview lPV = lPF.GetComponent<LinePreview>();
-            lPV.bezierDetail = bezDetail;
+            lPV.bezierDetail = bezDetailLines;
             lPV.numCtrlPts = LineGenerator.PointsDown.Count;
             lPV.numForThisAxis = numX;
             lPV.pts = linePts;
@@ -324,7 +332,7 @@ public class MeshGen : MonoBehaviour
             GameObject lPF = Instantiate(LinePrefab, transform.position + new Vector3(-sizeX*0.05f, 0.01f, -sizeY * 0.05f), Quaternion.identity);
             lPF.name = $"Y{i}";
             LinePreview lPV = lPF.GetComponent<LinePreview>();
-            lPV.bezierDetail = bezDetail;
+            lPV.bezierDetail = bezDetailLines;
             lPV.numCtrlPts = LineGenerator.PointsDown.Count;
             lPV.numForThisAxis = numY;
             lPV.pts = linePts;
@@ -336,6 +344,12 @@ public class MeshGen : MonoBehaviour
     {
         if (buildable)
         {
+            progressBar.enabled = true;
+            progressText.enabled = true;
+            progressBar.minValue = 0f;
+            progressBar.maxValue = numberOfPieces;
+            progressBar.value = 0f;
+            progressText.text = $"0% done";
             puzzlePieces = new List<GameObject> ();
             for (int i = 0; i < numY; i++)
             {
@@ -440,12 +454,19 @@ public class MeshGen : MonoBehaviour
                     Vector2 uvOffset = new Vector2(-j*xFac, -i*yFac);
                     //Vector2 uvOffset = new Vector2((sizeX / numX) + (j * (sizeX / numX)), (sizeY / numY) + (j * (sizeY / numY)));
                     //Vector2 uvOffset = new Vector2(-((j+1)/numX), -((i + 1) / numY));
-                    GeneratePiece.Build(piece, piecePts, pieceThickness, true, frontMaterial, cardboardMaterial, flipNormals, uvScale, uvOffset);
+                    float pivotIncX = (sizeX * 0.05f) / (float)numX;
+                    float pivotIncY = (sizeY * 0.05f) / (float)numY;
+                    GeneratePiece.Build(piece, piecePts, pieceThickness, true, frontMaterial, cardboardMaterial, flipNormals, uvScale, uvOffset, transform.position + new Vector3(-sizeX * 0.05f, 0.01f, -sizeY * 0.05f) + new Vector3(pivotIncX + (pivotIncX*j), 0, pivotIncY + (pivotIncY * j)));
                     //StartCoroutine(Waiter(piece, piecePts));
                     puzzlePieces.Add(piece);
+                    progressBar.value += 1f;
+                    float progressPct = (progressBar.value/numberOfPieces) * 100;
+                    progressText.text = $"{progressPct.ToString("0.0")}% done";
                     
                 }
             }
+            progressBar.enabled = false;
+            progressText.enabled = false;
 
             for (int i = 0; i < puzzlePieces.Count; i++)
             {
@@ -453,18 +474,22 @@ public class MeshGen : MonoBehaviour
                 if (pieceProps.hasNextBelow)
                 {
                     pieceProps.nextBelow = GameObject.Find($"PuzzlePiece{pieceProps.pieceX}_{pieceProps.pieceY - 1}");
+                    pieceProps.nextBelowOffset = pieceProps.nextBelow.transform.position - puzzlePieces[i].transform.position;
                 }
                 if (pieceProps.hasNextRight)
                 {
                     pieceProps.nextRight = GameObject.Find($"PuzzlePiece{pieceProps.pieceX + 1}_{pieceProps.pieceY}");
+                    pieceProps.nextRightOffset = pieceProps.nextRight.transform.position - puzzlePieces[i].transform.position;
                 }
                 if (pieceProps.hasNextAbove)
                 {
                     pieceProps.nextAbove = GameObject.Find($"PuzzlePiece{pieceProps.pieceX}_{pieceProps.pieceY + 1}");
+                    pieceProps.nextAboveOffset = pieceProps.nextAbove.transform.position - puzzlePieces[i].transform.position;
                 }
                 if (pieceProps.hasNextLeft)
                 {
                     pieceProps.nextLeft = GameObject.Find($"PuzzlePiece{pieceProps.pieceX - 1}_{pieceProps.pieceY}");
+                    pieceProps.nextLeftOffset = pieceProps.nextLeft.transform.position - puzzlePieces[i].transform.position;
                 }
             }
         }
@@ -476,6 +501,30 @@ public class MeshGen : MonoBehaviour
         Destroy(imgObj);
     }
 
+    public void CalculateOffsets()
+    {
+        for (int i = 0; i < puzzlePieces.Count; i++)
+        {
+            PuzzlePiece pieceProps = puzzlePieces[i].GetComponent<PuzzlePiece>();
+            
+            if (pieceProps.hasNextBelow)
+            {
+                pieceProps.nextBelowOffset = pieceProps.nextBelow.transform.position - puzzlePieces[i].transform.position;
+            }
+            if (pieceProps.hasNextRight)
+            {
+                pieceProps.nextRightOffset = pieceProps.nextRight.transform.position - puzzlePieces[i].transform.position;
+            }
+            if (pieceProps.hasNextAbove)
+            {
+                pieceProps.nextAboveOffset = pieceProps.nextAbove.transform.position - puzzlePieces[i].transform.position;
+            }
+            if (pieceProps.hasNextLeft)
+            {
+                pieceProps.nextLeftOffset = pieceProps.nextLeft.transform.position - puzzlePieces[i].transform.position;
+            }
+        }
+    }
     //IEnumerator Waiter(GameObject piece, List<Vector3> piecePts)
     //{
     //    yield return new WaitForSeconds(0.5f);
@@ -483,6 +532,21 @@ public class MeshGen : MonoBehaviour
     //}
     void Update()
     {
-
+        if (!offsetsCalculated)
+        {
+            if (puzzlePieces.Count != 0)
+            {
+                PuzzlePiece pieceProps = puzzlePieces[0].GetComponent<PuzzlePiece>();
+                float magnitudes = pieceProps.nextAboveOffset.magnitude + pieceProps.nextBelowOffset.magnitude + pieceProps.nextLeftOffset.magnitude + pieceProps.nextRightOffset.magnitude;
+                if (magnitudes < 0.0000001f && magnitudes > -0.0000001f)
+                {
+                    CalculateOffsets();
+                }
+                else
+                {
+                    offsetsCalculated = true;
+                }
+            } 
+        }
     }
 }
