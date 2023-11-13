@@ -75,14 +75,32 @@ public class PuzzlePiece : MonoBehaviour
         ol.OutlineWidth = 5;
         distanceToScreen = cam.WorldToScreenPoint(rb.transform.position).z;
         var rot = rb.transform.eulerAngles;
-        StartCoroutine(PickedPiece(1f, rot));
+        if (Input.GetMouseButton(1))
+        {
+            StartCoroutine(PickedPiece(0.5f, rot));
+        }
+        else
+        {
+            StartCoroutine(PickedPiece(1f, rot));
+        }
     }
 
     private void OnMouseDrag()
     {
         rb.transform.position = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, distanceToScreen));
         var rot = rb.transform.rotation.eulerAngles;
-        rot += new Vector3(0, Input.mouseScrollDelta.y*5f, 0);
+        if (Input.GetKey(KeyCode.LeftShift)) 
+        {
+            rot += new Vector3(0, 0, Input.mouseScrollDelta.y * 10f);
+        }
+        else if (Input.GetKey(KeyCode.LeftControl))
+        {
+            rot += new Vector3(Input.mouseScrollDelta.y * 10f, 0, 0);
+        }
+        else
+        {
+            rot += new Vector3(0, Input.mouseScrollDelta.y * 10f, 0);
+        }
         Quaternion quatRot = new Quaternion();
         quatRot.eulerAngles = rot;
         rb.transform.rotation = quatRot;
@@ -115,6 +133,11 @@ public class PuzzlePiece : MonoBehaviour
         ol.OutlineWidth = 3;
         ol.enabled = false;
         StopCoroutine(PickedPiece(2f, new Vector3(0,0,0)));
+        CameraMouse cameraMouse = cam.GetComponent<CameraMouse>();
+        if (cameraMouse.matchingLook == true)
+        {
+            rb.velocity = Vector3.zero;
+        }
     }
 
     // Update is called once per frame
@@ -145,10 +168,10 @@ public class PuzzlePiece : MonoBehaviour
                 distanceToScreen = minDist;
             }
             i++;
-            if (rb.transform.eulerAngles != new Vector3(startRotation.x, rb.transform.eulerAngles.y, startRotation.z))
-            {
-                rb.transform.eulerAngles = Vector3.Lerp(new Vector3(initRot.x, rb.transform.eulerAngles.y, initRot.z), new Vector3(startRotation.x, rb.transform.eulerAngles.y, startRotation.z), 0.075f * i);
-            }
+            //if (rb.transform.eulerAngles != new Vector3(startRotation.x, rb.transform.eulerAngles.y, startRotation.z))
+            //{
+            //    rb.transform.eulerAngles = Vector3.Lerp(new Vector3(initRot.x, rb.transform.eulerAngles.y, initRot.z), new Vector3(startRotation.x, rb.transform.eulerAngles.y, startRotation.z), 0.075f * i);
+            //}
             yield return null;
         }
     }

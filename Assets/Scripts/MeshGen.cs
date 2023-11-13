@@ -601,7 +601,14 @@ public class MeshGen : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            SceneManager.LoadScene (SceneManager.GetActiveScene().buildIndex, LoadSceneMode.Single);
+            if (Input.GetKey(KeyCode.LeftShift))
+            {
+                Application.Quit();
+            }
+            else
+            {
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex, LoadSceneMode.Single);
+            }
         }
     }
 }
