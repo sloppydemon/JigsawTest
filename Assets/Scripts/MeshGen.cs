@@ -485,22 +485,22 @@ public class MeshGen : MonoBehaviour
                 if (pieceProps.hasNextBelow)
                 {
                     pieceProps.nextBelow = GameObject.Find($"PuzzlePiece{pieceProps.pieceX}_{pieceProps.pieceY - 1}");
-                    pieceProps.nextBelowOffset = pieceProps.nextBelow.transform.position - puzzlePieces[i].transform.position;
+                    //pieceProps.nextBelowOffset = pieceProps.nextBelow.transform.position - puzzlePieces[i].transform.position;
                 }
                 if (pieceProps.hasNextRight)
                 {
                     pieceProps.nextRight = GameObject.Find($"PuzzlePiece{pieceProps.pieceX + 1}_{pieceProps.pieceY}");
-                    pieceProps.nextRightOffset = pieceProps.nextRight.transform.position - puzzlePieces[i].transform.position;
+                    //pieceProps.nextRightOffset = pieceProps.nextRight.transform.position - puzzlePieces[i].transform.position;
                 }
                 if (pieceProps.hasNextAbove)
                 {
                     pieceProps.nextAbove = GameObject.Find($"PuzzlePiece{pieceProps.pieceX}_{pieceProps.pieceY + 1}");
-                    pieceProps.nextAboveOffset = pieceProps.nextAbove.transform.position - puzzlePieces[i].transform.position;
+                    //pieceProps.nextAboveOffset = pieceProps.nextAbove.transform.position - puzzlePieces[i].transform.position;
                 }
                 if (pieceProps.hasNextLeft)
                 {
                     pieceProps.nextLeft = GameObject.Find($"PuzzlePiece{pieceProps.pieceX - 1}_{pieceProps.pieceY}");
-                    pieceProps.nextLeftOffset = pieceProps.nextLeft.transform.position - puzzlePieces[i].transform.position;
+                    //pieceProps.nextLeftOffset = pieceProps.nextLeft.transform.position - puzzlePieces[i].transform.position;
                 }
             }
         }
@@ -582,9 +582,9 @@ public class MeshGen : MonoBehaviour
             float tossZ = Random.Range(vecUL.z, vecLR.z);
             tossRB.transform.position = new Vector3(tossX, tossY, tossZ);
             yield return null;
-            float rotateX = Random.Range(-180f, 180f);
-            float rotateY = Random.Range(-180f, 180f);
-            float rotateZ = Random.Range(-180f, 180f);
+            float rotateX = Random.Range(0f, 360f);
+            float rotateY = Random.Range(0f, 360f);
+            float rotateZ = Random.Range(0f, 360f);
             tossRB.transform.eulerAngles = new Vector3(rotateX, rotateY, rotateZ);
             yield return null;
         }

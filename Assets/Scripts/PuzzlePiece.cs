@@ -134,25 +134,43 @@ public class PuzzlePiece : MonoBehaviour
         ol.enabled = false;
         StopCoroutine(PickedPiece(2f, new Vector3(0,0,0)));
         CameraMouse cameraMouse = cam.GetComponent<CameraMouse>();
-        if (cameraMouse.matchingLook == true)
+        if (cameraMouse.matchingLook == true | cameraMouse.closerLook == true)
         {
+            RaycastHit hitinfo = new RaycastHit();
+            bool hit = Physics.Raycast(transform.position, cam.transform.forward, out  hitinfo, 10f);
+            Debug.DrawRay(transform.position, cam.transform.forward, Color.red, 1);
+            rb.transform.position = hitinfo.point + new Vector3(0,0.12f,0);
+            rb.transform.eulerAngles = new Vector3(startRotation.x, rb.transform.eulerAngles.y, startRotation.z);
             rb.velocity = Vector3.zero;
+            joinable = true;
+        }
+        else
+        {
+            rb.velocity = cam.transform.forward*20f + new Vector3(0,5,0);
         }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (rb.transform.position.y < 0.5f)
+        if (rb != null)
         {
-            float tossX = Random.Range(vecUL.x, vecLR.x);
-            float tossY = Random.Range(vecUL.y, vecLR.y);
-            float tossZ = Random.Range(vecUL.z, vecLR.z);
-            rb.transform.position = new Vector3(tossX, tossY, tossZ);
+            if (rb.transform.position.y < 0.5f)
+            {
+                float tossX = Random.Range(vecUL.x, vecLR.x);
+                float tossY = Random.Range(vecUL.y, vecLR.y);
+                float tossZ = Random.Range(vecUL.z, vecLR.z);
+                rb.transform.position = new Vector3(tossX, tossY, tossZ);
+                joinable = false;
+            }
+            if (rb.velocity.magnitude > 1000)
+            {
+                rb.velocity = Vector3.zero;
+            }
         }
-        if (rb.velocity.magnitude > 1000)
+        else
         {
-            rb.velocity = Vector3.zero;
+            print($"{name} failed to mesh!");
         }
     }
 
@@ -168,10 +186,6 @@ public class PuzzlePiece : MonoBehaviour
                 distanceToScreen = minDist;
             }
             i++;
-            //if (rb.transform.eulerAngles != new Vector3(startRotation.x, rb.transform.eulerAngles.y, startRotation.z))
-            //{
-            //    rb.transform.eulerAngles = Vector3.Lerp(new Vector3(initRot.x, rb.transform.eulerAngles.y, initRot.z), new Vector3(startRotation.x, rb.transform.eulerAngles.y, startRotation.z), 0.075f * i);
-            //}
             yield return null;
         }
     }
