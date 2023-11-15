@@ -46,6 +46,7 @@ public class PuzzlePiece : MonoBehaviour
     public Vector3 vel;
     float distanceToScreen;
     Vector3 startRotation;
+    CameraMouse camMouse;
 
     public List<Vector3> piecePoints;
     
@@ -54,6 +55,7 @@ public class PuzzlePiece : MonoBehaviour
         hand = GameObject.FindGameObjectWithTag("Hand");
         finger = GameObject.FindGameObjectWithTag("IndexFinger");
         cam = Camera.main;
+        camMouse = cam.GetComponent<CameraMouse>();
         if (gameObject.GetComponent<Rigidbody>() != null )
         {
             rb = gameObject.GetComponent<Rigidbody>();
@@ -81,6 +83,7 @@ public class PuzzlePiece : MonoBehaviour
         ol.enabled = true;
         ol.OutlineColor = Color.blue;
         ol.OutlineWidth = 5;
+        camMouse.holding = true;
         distanceToScreen = cam.WorldToScreenPoint(rb.transform.position).z;
         joinable = true;
         var rot = rb.transform.eulerAngles;
@@ -142,8 +145,8 @@ public class PuzzlePiece : MonoBehaviour
         ol.OutlineWidth = 3;
         ol.enabled = false;
         StopCoroutine(PickedPiece(2f, new Vector3(0,0,0)));
-        CameraMouse cameraMouse = cam.GetComponent<CameraMouse>();
-        if (cameraMouse.matchingLook == true | cameraMouse.closerLook == true)
+        camMouse.holding = true;
+        if (camMouse.closerLook == true)
         {
             RaycastHit hitinfo = new RaycastHit();
             bool hit = Physics.Raycast(transform.position, cam.transform.forward, out  hitinfo, 10f);

@@ -18,8 +18,6 @@ public class MeshGen : MonoBehaviour
 {
     List<Vector3> pts;
     GameObject imgObj;
-    public Slider progressBar;
-    public TextMeshProUGUI progressText;
     public Button generateButton;
     public Button startButton;
     public GameObject LinePrefab;
@@ -79,8 +77,6 @@ void Start()
         startButton.enabled = false;
         startButton.gameObject.SetActive(false);
         offsetsCalculated = false;
-        progressBar.enabled = false;
-        progressText.enabled = false;
         alertText.text = "";
         GOsToDestroy = new List<GameObject>();
         pts = new List<Vector3>();
@@ -317,17 +313,8 @@ void Start()
     {
         if (buildable)
         {
-            progressBar.enabled = true;
-            progressText.enabled = true;
-            progressBar.minValue = 0f;
-            progressBar.maxValue = numberOfPieces;
-            progressBar.value = 0f;
-            progressText.text = $"0% done";
-
             heightMap = HeightMapGenerator.GenerateHeightMap(img, sizeX, sizeY, true);
             frontMaterial.SetTexture("_Height", heightMap);
-            //normalMap = NormalGenerator.GenerateNormals(heightMap, 0.1f);
-            //frontMaterial.SetTexture("_Normal", normalMap);
 
             puzzlePieces = new List<GameObject>();
             for (int i = 0; i < numY; i++)
@@ -492,14 +479,9 @@ void Start()
                     pieceProps.joinThreshold = pieceJoinThreshold;
                     pieceProps.joinRotThreshold = pieceJoinRotationThreshold;
                     puzzlePieces.Add(piece);
-                    progressBar.value += 1f;
-                    float progressPct = (progressBar.value / numberOfPieces) * 100;
-                    progressText.text = $"{progressPct.ToString("0.0")}% done";
 
                 }
             }
-            progressBar.enabled = false;
-            progressText.enabled = false;
 
             for (int k = 0; k < puzzlePiecesToDestroy.Count; k++)
             {
