@@ -26,6 +26,7 @@ public class MeshGen : MonoBehaviour
     public GameObject table;
     public Texture2D img;
     public Texture2D heightMap;
+    public Texture2D normalMap;
     public Slider sizeSlider;
     public Slider numberSlider;
     public TextMeshProUGUI sizeText;
@@ -77,7 +78,7 @@ void Start()
         alertText.text = "";
         GOsToDestroy = new List<GameObject>();
         pts = new List<Vector3>();
-        sizeInCms = Mathf.Max(img.height, img.width) / 10f;
+        sizeInCms = 80f;
         sizeSlider.maxValue = 200f;
         sizeSlider.minValue = 5f;
         sizeSlider.value = sizeInCms;
@@ -318,7 +319,9 @@ void Start()
             progressText.text = $"0% done";
 
             heightMap = HeightMapGenerator.GenerateHeightMap(img, sizeX, sizeY, true);
-            frontMaterial.SetTexture("_ParallaxMap", heightMap);
+            frontMaterial.SetTexture("_Height", heightMap);
+            //normalMap = NormalGenerator.GenerateNormals(heightMap, 0.1f);
+            //frontMaterial.SetTexture("_Normal", normalMap);
 
             puzzlePieces = new List<GameObject>();
             for (int i = 0; i < numY; i++)

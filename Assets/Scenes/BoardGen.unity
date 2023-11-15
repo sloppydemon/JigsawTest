@@ -3913,8 +3913,9 @@ MonoBehaviour:
   LinePrefab: {fileID: 8437824450925067081, guid: 3771b27fb33ad1442bd6fa5808899c66,
     type: 3}
   table: {fileID: 91142077}
-  img: {fileID: 2800000, guid: 80bc2de53d1bd2a49b74fb23cdd0f391, type: 3}
-  heightMap: {fileID: 2800000, guid: 459c4f38f64ac9440b43627c3eba9f12, type: 3}
+  img: {fileID: 2800000, guid: ccc2cb494d63fef459a742416264e2f7, type: 3}
+  heightMap: {fileID: 0}
+  normalMap: {fileID: 0}
   sizeSlider: {fileID: 1854784403}
   numberSlider: {fileID: 1151822609}
   sizeText: {fileID: 683935518}
@@ -3931,7 +3932,7 @@ MonoBehaviour:
   bezDetail: 0.01
   bezDetailLines: 0.05
   cardboardMaterial: {fileID: 2100000, guid: e6606306abe99754ba399cb623820226, type: 2}
-  frontMaterial: {fileID: 2100000, guid: c3afbacc96879b547a44c06dc2f35d5e, type: 2}
+  frontMaterial: {fileID: 2100000, guid: a5eab41de6eec7d4eb33255a18608c0f, type: 2}
   ratioX: 0
   ratioY: 0
   numX: 0

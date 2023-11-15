@@ -19,10 +19,10 @@ public class HeightMapGenerator : MonoBehaviour
             DrawLinesPerAxis(blank, lp.bezPts, sizeX, sizeY);
         }
 
-        DrawLine(blank, new Vector2(0, 0), new Vector2(img.width-1, 0), Color.black);
-        DrawLine(blank, new Vector2(img.width - 1, 0), new Vector2(img.width - 1, img.height - 1), Color.black);
-        DrawLine(blank, new Vector2(img.width - 1, img.height), new Vector2(0, img.height - 1), Color.black);
-        DrawLine(blank, new Vector2(0, img.height - 1), new Vector2(0, 0), Color.black);
+        DrawLine(blank, new Vector2(0, 0), new Vector2(blank.width-1, 0), Color.black);
+        DrawLine(blank, new Vector2(blank.width - 1, 0), new Vector2(blank.width - 1, blank.height - 1), Color.black);
+        DrawLine(blank, new Vector2(blank.width - 1, blank.height), new Vector2(0, blank.height - 1), Color.black);
+        DrawLine(blank, new Vector2(0, blank.height - 1), new Vector2(0, 0), Color.black);
 
         if (soften)
         {
@@ -39,24 +39,24 @@ public class HeightMapGenerator : MonoBehaviour
         {
             if (i == points.Count - 1)
             {
-                float x = (points[i].x / sizeX) * 10 * tex.width;
-                float y = (points[i].z / sizeY) * 10 * tex.height;
-                tex.SetPixel((int)x, (int)y, Color.black);
+                float x = (points[i].x / sizeX) * 10 * (tex.width - 1);
+                float y = (points[i].z / sizeY) * 10 * (tex.height - 1);
+                tex.SetPixel((int)x+4, (int)y+5, Color.black);
             }
             else
             {
-                float x1 = (points[i].x / sizeX) * 10 * tex.width;
-                float y1 = (points[i].z / sizeY) * 10 * tex.height;
-                float x2 = (points[i + 1].x / sizeX) * 10 * tex.width;
-                float y2 = (points[i + 1].z / sizeY) * 10 * tex.height;
-                DrawLine(tex, new Vector2(x1, y1), new Vector2(x2, y2), Color.black);
+                float x1 = (points[i].x / sizeX) * 10 * (tex.width - 1);
+                float y1 = (points[i].z / sizeY) * 10 * (tex.height - 1);
+                float x2 = (points[i + 1].x / sizeX) * 10 * (tex.width - 1);
+                float y2 = (points[i + 1].z / sizeY) * 10 * (tex.height - 1);
+                DrawLine(tex, new Vector2(x1+4, y1 + 5), new Vector2(x2 + 4, y2 + 5), Color.black);
             }
         }
     }
 
     public static Texture2D GenerateBlankMap(Texture2D img)
     {
-        Texture2D blankMap = new Texture2D(img.width, img.height, TextureFormat.ARGB32, false);
+        Texture2D blankMap = new Texture2D(img.width*2, img.height*2, TextureFormat.ARGB32, false);
         for (int i = 0; i < blankMap.width; i++)
         {
             for (int j = 0; j < blankMap.height; j++)
