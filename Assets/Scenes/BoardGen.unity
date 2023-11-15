@@ -3914,6 +3914,7 @@ MonoBehaviour:
     type: 3}
   table: {fileID: 91142077}
   img: {fileID: 2800000, guid: 80bc2de53d1bd2a49b74fb23cdd0f391, type: 3}
+  heightMap: {fileID: 2800000, guid: 459c4f38f64ac9440b43627c3eba9f12, type: 3}
   sizeSlider: {fileID: 1854784403}
   numberSlider: {fileID: 1151822609}
   sizeText: {fileID: 683935518}
@@ -3928,7 +3929,7 @@ MonoBehaviour:
   sizeInCms: 0
   sizeFactor: 0
   bezDetail: 0.01
-  bezDetailLines: 0.1
+  bezDetailLines: 0.05
   cardboardMaterial: {fileID: 2100000, guid: e6606306abe99754ba399cb623820226, type: 2}
   frontMaterial: {fileID: 2100000, guid: c3afbacc96879b547a44c06dc2f35d5e, type: 2}
   ratioX: 0

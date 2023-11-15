@@ -89,10 +89,6 @@ public class LineGenerator : MonoBehaviour
         return points;
     }
 
-    // The template Bezier curve.
-    //public static List<Vector2> BezCurve = BezierCurve.PointList2(ControlPoints, 0.001f);
-
-    // Start is called before the first frame update
     void Start()
     {
         copyPointsDown = PointsDown;

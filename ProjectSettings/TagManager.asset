@@ -11,6 +11,7 @@ TagManager:
   - BoxCornerUL
   - BoxCornerLR
   - LookAtPieceLocation
+  - LineHolder
   layers:
   - Default
   - TransparentFX
