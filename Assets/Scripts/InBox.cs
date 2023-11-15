@@ -14,6 +14,15 @@ public class InBox : MonoBehaviour
         }
     }
 
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag == "PuzzlePiece")
+        {
+            PuzzlePiece pieceProps = collision.gameObject.GetComponent<PuzzlePiece>();
+            pieceProps.joinable = false;
+        }
+    }
+
     private void OnCollisionExit(Collision collision)
     {
         PuzzlePiece pieceProps = collision.gameObject.GetComponent<PuzzlePiece> ();

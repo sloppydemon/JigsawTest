@@ -3944,8 +3944,10 @@ MonoBehaviour:
   fieldOfViewMinimum: 20
   fieldOfViewMaxAddend: 90
   pieceThickness: 0.005
-  bezierRetryIncrement: 0.0002
-  numberOfBezierRetries: 200
+  bezierRetryIncrement: 0.00125
+  pieceJoinThreshold: 20
+  pieceJoinRotationThreshold: 100
+  numberOfBezierRetries: 300
   numberOfPieces: 400
   GOsToDestroy: []
   puzzlePieces: []

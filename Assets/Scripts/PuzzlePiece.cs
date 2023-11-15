@@ -40,6 +40,8 @@ public class PuzzlePiece : MonoBehaviour
     private bool heldDown;
     private bool incompatible;
     private bool compatible;
+    public float joinThreshold;
+    public float joinRotThreshold;
     public OutlineQ ol;
     public Vector3 vel;
     float distanceToScreen;
@@ -80,6 +82,7 @@ public class PuzzlePiece : MonoBehaviour
         ol.OutlineColor = Color.blue;
         ol.OutlineWidth = 5;
         distanceToScreen = cam.WorldToScreenPoint(rb.transform.position).z;
+        joinable = true;
         var rot = rb.transform.eulerAngles;
         if (Input.GetMouseButton(1))
         {
@@ -152,11 +155,27 @@ public class PuzzlePiece : MonoBehaviour
         }
         else
         {
-            rb.velocity = (rb.transform.position - cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, distanceToScreen))) * 20f + new Vector3(0,5,0);
+            rb.velocity = (rb.transform.position - cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Input.mousePosition.z))) * 20f + new Vector3(0,5,0);
         }
     }
 
-    // Update is called once per frame
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (joinable)
+        {
+            if (collision.gameObject.tag == "PuzzlePiece")
+            {
+                if (hasNextAbove && collision.gameObject == nextAbove)
+                {
+                    if (Vector3.Distance((collision.rigidbody.transform.position - rb.transform.position), nextAboveOffset) < joinThreshold && Vector3.Distance((collision.rigidbody.transform.eulerAngles -  rb.transform.eulerAngles), nextAboveRotOS) < joinRotThreshold)
+                    {
+                        Debug.Log("They fit!");
+                    }
+                }
+            }
+        }
+    }
+
     void Update()
     {
         if (rb != null)

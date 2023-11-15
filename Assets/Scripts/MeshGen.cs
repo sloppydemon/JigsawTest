@@ -56,6 +56,8 @@ public class MeshGen : MonoBehaviour
     public float fieldOfViewMaxAddend;
     public float pieceThickness;
     public float bezierRetryIncrement;
+    public float pieceJoinThreshold;
+    public float pieceJoinRotationThreshold;
     public int numberOfBezierRetries;
     static float SizeFactor(float y, float x, float size)
     {
@@ -487,7 +489,8 @@ void Start()
                             }
                         }
                     }
-                    
+                    pieceProps.joinThreshold = pieceJoinThreshold;
+                    pieceProps.joinRotThreshold = pieceJoinRotationThreshold;
                     puzzlePieces.Add(piece);
                     progressBar.value += 1f;
                     float progressPct = (progressBar.value / numberOfPieces) * 100;
