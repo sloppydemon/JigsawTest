@@ -3913,6 +3913,7 @@ MonoBehaviour:
   LinePrefab: {fileID: 8437824450925067081, guid: 3771b27fb33ad1442bd6fa5808899c66,
     type: 3}
   table: {fileID: 91142077}
+  piece: {fileID: 0}
   img: {fileID: 2800000, guid: ccc2cb494d63fef459a742416264e2f7, type: 3}
   heightMap: {fileID: 0}
   normalMap: {fileID: 0}
@@ -3943,9 +3944,12 @@ MonoBehaviour:
   fieldOfViewMinimum: 20
   fieldOfViewMaxAddend: 90
   pieceThickness: 0.005
+  bezierRetryIncrement: 0.0002
+  numberOfBezierRetries: 200
   numberOfPieces: 400
   GOsToDestroy: []
   puzzlePieces: []
+  puzzlePiecesToDestroy: []
   offsetsCalculated: 0
 --- !u!4 &1196009441
 Transform:
@@ -5487,7 +5491,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.05, y: 0.975}
   m_AnchorMax: {x: 0.35, y: 0.975}
-  m_AnchoredPosition: {x: 8.500366, y: -41.5}
+  m_AnchoredPosition: {x: 8.500427, y: -41.5}
   m_SizeDelta: {x: -9.999994, y: 19}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1854784403

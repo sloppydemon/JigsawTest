@@ -24,6 +24,7 @@ public class MeshGen : MonoBehaviour
     public Button startButton;
     public GameObject LinePrefab;
     public GameObject table;
+    public GameObject piece;
     public Texture2D img;
     public Texture2D heightMap;
     public Texture2D normalMap;
@@ -54,6 +55,8 @@ public class MeshGen : MonoBehaviour
     public float fieldOfViewMinimum;
     public float fieldOfViewMaxAddend;
     public float pieceThickness;
+    public float bezierRetryIncrement;
+    public int numberOfBezierRetries;
     static float SizeFactor(float y, float x, float size)
     {
         float max = Mathf.Max(y, x);
@@ -64,6 +67,7 @@ public class MeshGen : MonoBehaviour
     public int numberOfPieces;
     public List<GameObject> GOsToDestroy;
     public List<GameObject> puzzlePieces;
+    public List<GameObject> puzzlePiecesToDestroy;
     public bool offsetsCalculated;
 
 void Start()
@@ -328,7 +332,7 @@ void Start()
             {
                 for (int j = 0; j < numX; j++)
                 {
-                    GameObject piece = new GameObject();
+                    piece = new GameObject();
                     piece.transform.position = new Vector3(-sizeX * 0.05f, 8.155f, -sizeY * 0.05f);
                     piece.name = $"PuzzlePiece{j}_{i}";
                     PuzzlePiece pieceProps = piece.AddComponent<PuzzlePiece>();
@@ -346,6 +350,7 @@ void Start()
                             pieceProps.hasNextRight = true;
                             pieceProps.hasNextAbove = true;
                             pieceProps.hasNextLeft = false;
+                            pieceProps.cornerPiece = true;
                         }
                         else if (j == numX - 1)
                         {
@@ -354,6 +359,7 @@ void Start()
                             pieceProps.hasNextRight = false;
                             pieceProps.hasNextAbove = true;
                             pieceProps.hasNextLeft = true;
+                            pieceProps.cornerPiece = false;
                         }
                         else
                         {
@@ -362,6 +368,7 @@ void Start()
                             pieceProps.hasNextRight = true;
                             pieceProps.hasNextAbove = true;
                             pieceProps.hasNextLeft = true;
+                            pieceProps.cornerPiece = true;
                         }
                     }
                     else if (i == numY - 1)
@@ -374,6 +381,7 @@ void Start()
                             pieceProps.hasNextRight = true;
                             pieceProps.hasNextAbove = false;
                             pieceProps.hasNextLeft = false;
+                            pieceProps.cornerPiece = false;
                         }
                         else if (j == numX - 1)
                         {
@@ -382,6 +390,7 @@ void Start()
                             pieceProps.hasNextRight = false;
                             pieceProps.hasNextAbove = false;
                             pieceProps.hasNextLeft = true;
+                            pieceProps.cornerPiece = true;
                         }
                         else
                         {
@@ -390,6 +399,7 @@ void Start()
                             pieceProps.hasNextRight = true;
                             pieceProps.hasNextAbove = false;
                             pieceProps.hasNextLeft = true;
+                            pieceProps.cornerPiece = false;
                         }
                     }
                     else
@@ -402,6 +412,7 @@ void Start()
                             pieceProps.hasNextRight = true;
                             pieceProps.hasNextAbove = true;
                             pieceProps.hasNextLeft = false;
+                            pieceProps.cornerPiece = false;
                         }
                         else if (j == numX - 1)
                         {
@@ -410,6 +421,7 @@ void Start()
                             pieceProps.hasNextRight = false;
                             pieceProps.hasNextAbove = true;
                             pieceProps.hasNextLeft = true;
+                            pieceProps.cornerPiece = false;
                         }
                         else
                         {
@@ -418,6 +430,7 @@ void Start()
                             pieceProps.hasNextRight = true;
                             pieceProps.hasNextAbove = true;
                             pieceProps.hasNextLeft = true;
+                            pieceProps.cornerPiece = false;
                         }
                     }
                     pieceProps.piecePoints = piecePts;
@@ -425,12 +438,56 @@ void Start()
                     float xFac = 1f / (float)numX;
                     float yFac = 1f / (float)numY;
                     Vector2 uvOffset = new Vector2(-j * xFac, -i * yFac);
-                    //Vector2 uvOffset = new Vector2((sizeX / numX) + (j * (sizeX / numX)), (sizeY / numY) + (j * (sizeY / numY)));
-                    //Vector2 uvOffset = new Vector2(-((j+1)/numX), -((i + 1) / numY));
-                    float pivotIncX = (sizeX * 0.05f) / (float)numX;
-                    float pivotIncY = (sizeY * 0.05f) / (float)numY;
                     GeneratePiece.Build(piece, piecePts, pieceThickness, true, frontMaterial, cardboardMaterial, flipNormals, uvScale, uvOffset);
-                    //StartCoroutine(Waiter(piece, piecePts));
+                    ProBuilderMesh verts = piece.GetComponent<ProBuilderMesh>();
+                    int retry = 0;
+                    if (verts.vertexCount == 0)
+                    {
+                        Debug.Log($"Meshing of {piece.name} failed!");
+                        while (retry < numberOfBezierRetries)
+                        {
+                            puzzlePiecesToDestroy.Add( piece );
+                            puzzlePieces.Remove( piece );
+                            retry++;
+                            float retryIncrementDown = bezDetail - bezierRetryIncrement * retry;
+                            float retryIncrementUp = bezDetail + bezierRetryIncrement * retry;
+                            Debug.Log($"Retrying at bezier resolution {retryIncrementUp}...");
+                            piece = GeneratePiece.CollectPoints(sizeX, sizeY, i, j, retryIncrementUp, numX, numY);
+                            pieceProps = piece.gameObject.GetComponent<PuzzlePiece>();
+                            GeneratePiece.Build(piece, pieceProps.piecePoints, pieceThickness, true, frontMaterial, cardboardMaterial, flipNormals, uvScale, uvOffset);
+                            verts = piece.GetComponent<ProBuilderMesh>();
+                            if (verts.vertexCount != 0)
+                            {
+                                Debug.Log("Success!");
+                                break;
+                            }
+                            else
+                            {
+                                Debug.Log($"Failed!");
+                            }
+                            if (retryIncrementDown > 0)
+                            {
+                                
+                                Debug.Log($"Retrying at bezier resolution {retryIncrementDown}...");
+                                puzzlePiecesToDestroy.Add(piece );
+                                puzzlePieces.Remove( piece );
+                                piece = GeneratePiece.CollectPoints(sizeX, sizeY, i, j, retryIncrementUp, numX, numY);
+                                pieceProps = piece.gameObject.GetComponent<PuzzlePiece>();
+                                GeneratePiece.Build(piece, pieceProps.piecePoints, pieceThickness, true, frontMaterial, cardboardMaterial, flipNormals, uvScale, uvOffset);
+                                verts = piece.GetComponent<ProBuilderMesh>();
+                                if (verts.vertexCount != 0)
+                                {
+                                    Debug.Log("Success!");
+                                    break;
+                                }
+                                else
+                                {
+                                    Debug.Log($"Failed!");
+                                }
+                            }
+                        }
+                    }
+                    
                     puzzlePieces.Add(piece);
                     progressBar.value += 1f;
                     float progressPct = (progressBar.value / numberOfPieces) * 100;
@@ -440,6 +497,12 @@ void Start()
             }
             progressBar.enabled = false;
             progressText.enabled = false;
+
+            for (int k = 0; k < puzzlePiecesToDestroy.Count; k++)
+            {
+                puzzlePiecesToDestroy[k].name = $"destroyed_piece_no_{k}";
+                Destroy(puzzlePiecesToDestroy[k] );
+            }
 
             for (int i = 0; i < puzzlePieces.Count; i++)
             {

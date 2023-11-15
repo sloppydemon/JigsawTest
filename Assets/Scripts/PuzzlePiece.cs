@@ -10,6 +10,8 @@ public class PuzzlePiece : MonoBehaviour
     public bool hasNextRight;
     public bool hasNextAbove;
     public bool hasNextLeft;
+    public bool cornerPiece;
+    public bool flipNormals;
     public int pieceX;
     public int pieceY;
     public GameObject hand;
@@ -50,9 +52,13 @@ public class PuzzlePiece : MonoBehaviour
         hand = GameObject.FindGameObjectWithTag("Hand");
         finger = GameObject.FindGameObjectWithTag("IndexFinger");
         cam = Camera.main;
-        rb = gameObject.GetComponent<Rigidbody>();
-        rb.mass = 0.1f;
-        rb.drag = 0.1f;
+        if (gameObject.GetComponent<Rigidbody>() != null )
+        {
+            rb = gameObject.GetComponent<Rigidbody>();
+            rb.mass = 0.1f;
+            rb.drag = 0.1f;
+            startRotation = rb.transform.eulerAngles;
+        }
         gameObject.tag = "PuzzlePiece";
         cornerUL = GameObject.FindGameObjectWithTag("BoxCornerUL");
         cornerLR = GameObject.FindGameObjectWithTag("BoxCornerLR");
@@ -60,7 +66,7 @@ public class PuzzlePiece : MonoBehaviour
         vecLR = cornerLR.transform.position;
         ol = gameObject.AddComponent<OutlineQ>();
         ol.enabled = false;
-        startRotation = rb.transform.eulerAngles;
+        
 
         //pieceCollider = gameObject.AddComponent<BoxCollider>();
         //pieceCollider.isTrigger = true;
@@ -146,7 +152,7 @@ public class PuzzlePiece : MonoBehaviour
         }
         else
         {
-            rb.velocity = cam.transform.forward*20f + new Vector3(0,5,0);
+            rb.velocity = (rb.transform.position - cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, distanceToScreen))) * 20f + new Vector3(0,5,0);
         }
     }
 
@@ -167,10 +173,6 @@ public class PuzzlePiece : MonoBehaviour
             {
                 rb.velocity = Vector3.zero;
             }
-        }
-        else
-        {
-            print($"{name} failed to mesh!");
         }
     }
 
