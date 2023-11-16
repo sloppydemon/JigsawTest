@@ -75,8 +75,15 @@ public class MeshGen : MonoBehaviour
     public List<GameObject> puzzlePieces;
     public List<GameObject> puzzlePiecesToDestroy;
     public bool offsetsCalculated;
+    public List<AudioClip> soundsImpactPiecePiece;
+    public List<AudioClip> soundsImpactPieceBox;
+    public List<AudioClip> soundsImpactPieceTable;
+    public List<AudioClip> soundsPutPiece;
+    public List<AudioClip> soundsJoinPiece;
+    public List<AudioClip> soundsPickPieceBox;
+    public List<AudioClip> soundsPickPieceTable;
 
-void Start()
+    void Start()
     {
         cam.gameObject.GetComponent<CameraMouse>().enabled = false;
         alertText.text = "";

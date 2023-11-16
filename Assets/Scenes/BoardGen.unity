@@ -137,7 +137,7 @@ GameObject:
   - component: {fileID: 7838286}
   m_Layer: 2
   m_Name: BoxSideB
-  m_TagString: Untagged
+  m_TagString: PuzzleBox
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -546,7 +546,7 @@ GameObject:
   - component: {fileID: 91142079}
   m_Layer: 2
   m_Name: Table
-  m_TagString: Untagged
+  m_TagString: Table
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -990,7 +990,7 @@ GameObject:
   - component: {fileID: 388943539}
   m_Layer: 2
   m_Name: BoxSideR
-  m_TagString: Untagged
+  m_TagString: PuzzleBox
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1936,7 +1936,7 @@ GameObject:
   - component: {fileID: 609573848}
   m_Layer: 2
   m_Name: BoxSideF
-  m_TagString: Untagged
+  m_TagString: PuzzleBox
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2819,10 +2819,20 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: -6335140631721903373, guid: deb695d52f8ee5444bfb52ab183c9330,
+        type: 3}
+      propertyPath: m_TagString
+      value: Table
+      objectReference: {fileID: 0}
     - target: {fileID: -6276682633029250680, guid: deb695d52f8ee5444bfb52ab183c9330,
         type: 3}
       propertyPath: m_Layer
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -6276682633029250680, guid: deb695d52f8ee5444bfb52ab183c9330,
+        type: 3}
+      propertyPath: m_TagString
+      value: Table
       objectReference: {fileID: 0}
     - target: {fileID: -4374406064710270291, guid: deb695d52f8ee5444bfb52ab183c9330,
         type: 3}
@@ -2839,6 +2849,11 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: -2992507703251032678, guid: deb695d52f8ee5444bfb52ab183c9330,
+        type: 3}
+      propertyPath: m_TagString
+      value: Table
+      objectReference: {fileID: 0}
     - target: {fileID: -1937653688446003531, guid: deb695d52f8ee5444bfb52ab183c9330,
         type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -2853,6 +2868,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Layer
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: deb695d52f8ee5444bfb52ab183c9330,
+        type: 3}
+      propertyPath: m_TagString
+      value: Table
       objectReference: {fileID: 0}
     - target: {fileID: 1959073735275260758, guid: deb695d52f8ee5444bfb52ab183c9330,
         type: 3}
@@ -2874,20 +2894,40 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 2868946464831882958, guid: deb695d52f8ee5444bfb52ab183c9330,
+        type: 3}
+      propertyPath: m_TagString
+      value: Table
+      objectReference: {fileID: 0}
     - target: {fileID: 3358011647240339119, guid: deb695d52f8ee5444bfb52ab183c9330,
         type: 3}
       propertyPath: m_Layer
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3358011647240339119, guid: deb695d52f8ee5444bfb52ab183c9330,
+        type: 3}
+      propertyPath: m_TagString
+      value: Table
       objectReference: {fileID: 0}
     - target: {fileID: 5716821086181866937, guid: deb695d52f8ee5444bfb52ab183c9330,
         type: 3}
       propertyPath: m_Layer
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 5716821086181866937, guid: deb695d52f8ee5444bfb52ab183c9330,
+        type: 3}
+      propertyPath: m_TagString
+      value: Table
+      objectReference: {fileID: 0}
     - target: {fileID: 8527775034973187422, guid: deb695d52f8ee5444bfb52ab183c9330,
         type: 3}
       propertyPath: m_Layer
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8527775034973187422, guid: deb695d52f8ee5444bfb52ab183c9330,
+        type: 3}
+      propertyPath: m_TagString
+      value: Table
       objectReference: {fileID: 0}
     - target: {fileID: 8594853275186013621, guid: deb695d52f8ee5444bfb52ab183c9330,
         type: 3}
@@ -3274,7 +3314,7 @@ MonoBehaviour:
   currentRot: {x: 0, y: 0, z: 0}
   dollyLvl: 0
   closerLerp: 0
-  closerLerpSpeed: 0.01
+  closerLerpSpeed: 0.05
   closerLook: 0
   closerLookHeight: 12
   minLookHeight: 9
@@ -3522,7 +3562,7 @@ GameObject:
   - component: {fileID: 1164919469}
   m_Layer: 2
   m_Name: BoxBottom
-  m_TagString: Untagged
+  m_TagString: PuzzleBox
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3694,6 +3734,28 @@ MonoBehaviour:
   puzzlePieces: []
   puzzlePiecesToDestroy: []
   offsetsCalculated: 0
+  soundsImpactPiecePiece:
+  - {fileID: 8300000, guid: 17c42b14bdbec724fbc2ecdd969791f3, type: 3}
+  - {fileID: 8300000, guid: 3c053d87605ae79419362e6da738347c, type: 3}
+  - {fileID: 8300000, guid: c4835f51a7fe1c6439349bd880cb9eda, type: 3}
+  soundsImpactPieceBox:
+  - {fileID: 8300000, guid: 08920bfe42311ad43ac0d3985ea6ba36, type: 3}
+  - {fileID: 8300000, guid: 51460c100e686c2438eff07870246332, type: 3}
+  - {fileID: 8300000, guid: 6ddff19a23937474698d68c1fe06e003, type: 3}
+  soundsImpactPieceTable:
+  - {fileID: 8300000, guid: 514785e24b888244a9ee4f4892e31070, type: 3}
+  - {fileID: 8300000, guid: 988e1fccaabc01e43af8d30a30e54501, type: 3}
+  - {fileID: 8300000, guid: e74d0e557f41e9848b6b2562f1f228ca, type: 3}
+  soundsPutPiece:
+  - {fileID: 8300000, guid: e5d44779169f02b43978be79e285fc1d, type: 3}
+  - {fileID: 8300000, guid: 20e8377f35cd96b4193b5203dbe15434, type: 3}
+  soundsJoinPiece:
+  - {fileID: 8300000, guid: f2b1fcf15331e1b4ab908012cb4f8b71, type: 3}
+  soundsPickPieceBox:
+  - {fileID: 8300000, guid: 7a6bb290d576d054fa794539d42e9cd8, type: 3}
+  - {fileID: 8300000, guid: 64d5b841fc22aef48a8d82a846ff74bc, type: 3}
+  soundsPickPieceTable:
+  - {fileID: 8300000, guid: 0c6bd94b8d8e82f488c03b31d665bd94, type: 3}
 --- !u!4 &1196009441
 Transform:
   m_ObjectHideFlags: 0
@@ -4171,7 +4233,7 @@ GameObject:
   - component: {fileID: 1348129216}
   m_Layer: 2
   m_Name: BoxSideL
-  m_TagString: Untagged
+  m_TagString: PuzzleBox
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

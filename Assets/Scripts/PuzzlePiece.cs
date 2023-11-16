@@ -39,6 +39,7 @@ public class PuzzlePiece : MonoBehaviour
     public bool joinable;
     private bool held;
     private bool heldDown;
+    public bool insideBox;
     private bool incompatible;
     private bool compatible;
     public float joinThreshold;
@@ -50,12 +51,17 @@ public class PuzzlePiece : MonoBehaviour
     float distanceToScreen;
     Vector3 startRotation;
     CameraMouse camMouse;
-
     public List<Vector3> piecePoints;
+    GameObject gameGO;
+    MeshGen game;
+    AudioSource sndSource;
     
     void Start()
     {
+        sndSource = gameObject.AddComponent<AudioSource>();
         joinable = false;
+        gameGO = GameObject.FindGameObjectWithTag("GameController");
+        game = gameGO.GetComponent<MeshGen>();
         hand = GameObject.FindGameObjectWithTag("Hand");
         finger = GameObject.FindGameObjectWithTag("IndexFinger");
         cam = Camera.main;
@@ -78,12 +84,6 @@ public class PuzzlePiece : MonoBehaviour
         vecLR = cornerLR.transform.position;
         ol = gameObject.AddComponent<OutlineQ>();
         ol.enabled = false;
-
-
-        //pieceCollider = gameObject.AddComponent<BoxCollider>();
-        //pieceCollider.isTrigger = true;
-        //pieceCollider.enabled = true;
-        //pieceCollider.size = new Vector3(1.1f, 1.1f, 1.1f);
     }
 
     private void OnMouseDown()
@@ -91,6 +91,16 @@ public class PuzzlePiece : MonoBehaviour
         ol.enabled = true;
         ol.OutlineColor = Color.blue;
         ol.OutlineWidth = 5;
+        AudioClip snd;
+        if (insideBox)
+        {
+            snd = game.soundsPickPieceBox[Random.Range(0, game.soundsPickPieceBox.Count-1)];
+        }
+        else
+        {
+            snd = game.soundsPickPieceTable[Random.Range(0, game.soundsPickPieceTable.Count - 1)];
+        }
+        AudioSource.PlayClipAtPoint(snd, rb.transform.position);
         camMouse.holding = true;
         distanceToScreen = cam.WorldToScreenPoint(rb.transform.position).z;
         joinable = true;
@@ -170,13 +180,23 @@ public class PuzzlePiece : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (joinable)
+        AudioClip snd;
+        if (collision.gameObject.tag == "PuzzlePiece")
         {
-            if (collision.gameObject.tag == "PuzzlePiece")
+            
+            if (collision.impulse.magnitude > 0.15f)
+            {
+                Debug.Log($"Piece on Piece collision impulse: {collision.impulse.magnitude}");
+                snd = game.soundsImpactPiecePiece[Random.Range(0, game.soundsImpactPiecePiece.Count - 1)];
+                sndSource.pitch = Random.Range(0.95f, 1.05f) - collision.impulse.magnitude / 10;
+                sndSource.PlayOneShot(snd, collision.impulse.magnitude);
+            }
+
+            if (joinable)
             {
                 if (hasNextAbove && collision.gameObject == nextAbove)
                 {
-                    if (Vector3.Distance((collision.rigidbody.transform.position - rb.transform.position), nextAboveOffset) < joinThreshold && Vector3.Distance((collision.rigidbody.transform.eulerAngles -  rb.transform.eulerAngles), nextAboveRotOS) < joinRotThreshold)
+                    if (Vector3.Distance((collision.rigidbody.transform.position - rb.transform.position), nextAboveOffset) < joinThreshold && Vector3.Distance((collision.rigidbody.transform.eulerAngles - rb.transform.eulerAngles), nextAboveRotOS) < joinRotThreshold)
                     {
                         print($"{name} and {collision.gameObject.name} fit together!\nDifference from initial offset:{Vector3.Distance((collision.rigidbody.transform.position - rb.transform.position), nextAboveOffset)}\nDifference from initial rotational offset: {Vector3.Distance((collision.rigidbody.transform.eulerAngles - rb.transform.eulerAngles), nextAboveRotOS)}");
                     }
@@ -220,7 +240,30 @@ public class PuzzlePiece : MonoBehaviour
                 }
             }
         }
+
+        if (collision.gameObject.tag == "PuzzleBox")
+        {
+            if (collision.impulse.magnitude > 0.35f)
+            {
+                Debug.Log($"Piece on Box collision impulse: {collision.impulse.magnitude}");
+                snd = game.soundsImpactPieceBox[Random.Range(0, game.soundsImpactPieceBox.Count - 1)];
+                sndSource.pitch = Random.Range(0.95f, 1.05f) - collision.impulse.magnitude / 10;
+                sndSource.PlayOneShot(snd, collision.impulse.magnitude);
+            }
+        }
+
+        if (collision.gameObject.tag == "Table")
+        {
+            if (collision.impulse.magnitude > 0.05f)
+            {
+                Debug.Log($"Piece on Table collision impulse: {collision.impulse.magnitude}");
+                snd = game.soundsImpactPieceTable[Random.Range(0, game.soundsImpactPieceTable.Count - 1)];
+                sndSource.pitch = Random.Range(1f, 1.05f) - collision.impulse.magnitude / 10;
+                sndSource.PlayOneShot(snd, collision.impulse.magnitude);
+            }
+        }
     }
+
 
     void Update()
     {

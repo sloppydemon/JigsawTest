@@ -21,6 +21,7 @@ public class InBox : MonoBehaviour
         {
             piecesInBox.Add(collision.gameObject);
             PuzzlePiece pieceProps = collision.gameObject.GetComponent<PuzzlePiece>();
+            pieceProps.insideBox = true;
             pieceProps.joinable = false;
         }
     }
@@ -31,6 +32,7 @@ public class InBox : MonoBehaviour
         {
             piecesInBox.Remove(collision.gameObject);
             PuzzlePiece pieceProps = collision.gameObject.GetComponent<PuzzlePiece>();
+            pieceProps.insideBox = false;
         }
     }
     // Start is called before the first frame update

@@ -12,6 +12,7 @@ TagManager:
   - BoxCornerLR
   - LookAtPieceLocation
   - LineHolder
+  - Table
   layers:
   - Default
   - TransparentFX
