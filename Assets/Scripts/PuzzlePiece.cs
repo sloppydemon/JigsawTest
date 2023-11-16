@@ -271,6 +271,9 @@ public class PuzzlePiece : MonoBehaviour
         {
             if (rb.transform.position.y < 0.5f)
             {
+                AudioClip snd;
+                snd = game.soundsPieceOnFloor[Random.Range(0, game.soundsPieceOnFloor.Count - 1)];
+                sndSource.PlayOneShot(snd, 1);
                 float tossX = Random.Range(vecUL.x, vecLR.x);
                 float tossY = Random.Range(vecUL.y, vecLR.y);
                 float tossZ = Random.Range(vecUL.z, vecLR.z);

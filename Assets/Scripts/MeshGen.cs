@@ -82,6 +82,7 @@ public class MeshGen : MonoBehaviour
     public List<AudioClip> soundsJoinPiece;
     public List<AudioClip> soundsPickPieceBox;
     public List<AudioClip> soundsPickPieceTable;
+    public List<AudioClip> soundsPieceOnFloor;
 
     void Start()
     {

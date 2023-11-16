@@ -3738,14 +3738,37 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 17c42b14bdbec724fbc2ecdd969791f3, type: 3}
   - {fileID: 8300000, guid: 3c053d87605ae79419362e6da738347c, type: 3}
   - {fileID: 8300000, guid: c4835f51a7fe1c6439349bd880cb9eda, type: 3}
+  - {fileID: 8300000, guid: b3caccc40c2bacb43826d3c41419fceb, type: 3}
+  - {fileID: 8300000, guid: d6454571c2a18144389640f76ec192a4, type: 3}
+  - {fileID: 8300000, guid: 7ded1d1ba40ef1d45aaa3d56ef06719b, type: 3}
+  - {fileID: 8300000, guid: de5ed499783814a4893fc1fb74b0abc2, type: 3}
+  - {fileID: 8300000, guid: 2e0b225929727c24cbcdd463129e44a6, type: 3}
+  - {fileID: 8300000, guid: c54348aa0a3c51944a9536e5fa759764, type: 3}
   soundsImpactPieceBox:
   - {fileID: 8300000, guid: 08920bfe42311ad43ac0d3985ea6ba36, type: 3}
   - {fileID: 8300000, guid: 51460c100e686c2438eff07870246332, type: 3}
   - {fileID: 8300000, guid: 6ddff19a23937474698d68c1fe06e003, type: 3}
+  - {fileID: 8300000, guid: 719033e231f3b6a4aaade1a8f18d2093, type: 3}
+  - {fileID: 8300000, guid: 71c3d2d436d365a479bef52d29d7e12f, type: 3}
+  - {fileID: 8300000, guid: 8f98df51b7f839547bd66c090fb9a794, type: 3}
+  - {fileID: 8300000, guid: f4494f6d998da4543a216cff6be824a9, type: 3}
+  - {fileID: 8300000, guid: 76d6629e3bb0e01498f7b4130ee6c73b, type: 3}
+  - {fileID: 8300000, guid: 576389ef20c43884289b7bb3691e7d68, type: 3}
+  - {fileID: 8300000, guid: 93f3f9fa6f9034a41a84b770bee2c789, type: 3}
+  - {fileID: 8300000, guid: 88dbc680d3060974cab2652c4dc92626, type: 3}
+  - {fileID: 8300000, guid: aeadf957a5ba48d49b1c15ff85cc0905, type: 3}
+  - {fileID: 8300000, guid: eae84ca87060620408a68a3c387efc7e, type: 3}
+  - {fileID: 8300000, guid: 905396e3fc83287409684698b0a45700, type: 3}
   soundsImpactPieceTable:
   - {fileID: 8300000, guid: 514785e24b888244a9ee4f4892e31070, type: 3}
   - {fileID: 8300000, guid: 988e1fccaabc01e43af8d30a30e54501, type: 3}
   - {fileID: 8300000, guid: e74d0e557f41e9848b6b2562f1f228ca, type: 3}
+  - {fileID: 8300000, guid: bad06eb3ff1d4a748a4c077d20eae8c0, type: 3}
+  - {fileID: 8300000, guid: 7429be0797e61dd4691acbb2f296b067, type: 3}
+  - {fileID: 8300000, guid: 228bda2ad1e0b194a9193532bfc244c9, type: 3}
+  - {fileID: 8300000, guid: 8a64d466dcc33e745a8579adf8dd6f87, type: 3}
+  - {fileID: 8300000, guid: 572fc1fe300fb5a4eb8aea6c6512cc27, type: 3}
+  - {fileID: 8300000, guid: 80ab4c0db0a762743a7d7be19633be02, type: 3}
   soundsPutPiece:
   - {fileID: 8300000, guid: e5d44779169f02b43978be79e285fc1d, type: 3}
   - {fileID: 8300000, guid: 20e8377f35cd96b4193b5203dbe15434, type: 3}
@@ -3754,8 +3777,18 @@ MonoBehaviour:
   soundsPickPieceBox:
   - {fileID: 8300000, guid: 7a6bb290d576d054fa794539d42e9cd8, type: 3}
   - {fileID: 8300000, guid: 64d5b841fc22aef48a8d82a846ff74bc, type: 3}
+  - {fileID: 8300000, guid: d1c4f95101ac27e419a79f45ad6df7fa, type: 3}
+  - {fileID: 8300000, guid: b1a44fcca3c181d4a9c95fba6c3ac6f2, type: 3}
   soundsPickPieceTable:
   - {fileID: 8300000, guid: 0c6bd94b8d8e82f488c03b31d665bd94, type: 3}
+  - {fileID: 8300000, guid: e43adf561a50bcf4898df6dc40d981b6, type: 3}
+  - {fileID: 8300000, guid: de6f3e3410282b44093df5c73b0eabff, type: 3}
+  soundsPieceOnFloor:
+  - {fileID: 8300000, guid: abb05a5535e331b4e874b122a097f92e, type: 3}
+  - {fileID: 8300000, guid: 9b68644f39285084690ac9be7c7ee305, type: 3}
+  - {fileID: 8300000, guid: fd14ef6a9bcef5649ae8f07cb4ca8476, type: 3}
+  - {fileID: 8300000, guid: bec3143d6431fa14d8b5ec2e08fa8b90, type: 3}
+  - {fileID: 8300000, guid: 3e8db92b27a2dc042bf069e084e2950c, type: 3}
 --- !u!4 &1196009441
 Transform:
   m_ObjectHideFlags: 0
@@ -5688,7 +5721,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.05, y: 0.975}
   m_AnchorMax: {x: 0.35, y: 0.975}
-  m_AnchoredPosition: {x: 8.500427, y: -41.5}
+  m_AnchoredPosition: {x: 8.500488, y: -41.5}
   m_SizeDelta: {x: -9.999994, y: 19}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1854784403

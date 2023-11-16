@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/BoardGen.unity
+    path: Assets/Scenes/PuzzleGame.unity
     guid: 73abf3518e60fab4ead1e77596d820e8
   m_configObjects: {}
