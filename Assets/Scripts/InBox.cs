@@ -4,13 +4,14 @@ using UnityEngine;
 
 public class InBox : MonoBehaviour
 {
+    public List<GameObject> piecesInBox;
+
     private void OnCollisionStay(Collision collision)
     {
         if (collision.gameObject.tag == "PuzzlePiece")
         {
 
             PuzzlePiece pieceProps = collision.gameObject.GetComponent<PuzzlePiece>();
-            pieceProps.joinable = false;
         }
     }
 
@@ -18,6 +19,7 @@ public class InBox : MonoBehaviour
     {
         if (collision.gameObject.tag == "PuzzlePiece")
         {
+            piecesInBox.Add(collision.gameObject);
             PuzzlePiece pieceProps = collision.gameObject.GetComponent<PuzzlePiece>();
             pieceProps.joinable = false;
         }
@@ -25,8 +27,11 @@ public class InBox : MonoBehaviour
 
     private void OnCollisionExit(Collision collision)
     {
-        PuzzlePiece pieceProps = collision.gameObject.GetComponent<PuzzlePiece> ();
-        pieceProps.joinable = true;
+        if (collision.gameObject.tag == "PuzzlePiece")
+        {
+            piecesInBox.Remove(collision.gameObject);
+            PuzzlePiece pieceProps = collision.gameObject.GetComponent<PuzzlePiece>();
+        }
     }
     // Start is called before the first frame update
     void Start()

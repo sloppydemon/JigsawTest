@@ -45,6 +45,8 @@ public class MeshGen : MonoBehaviour
     public float bezDetailLines;
     public Material cardboardMaterial;
     public Material frontMaterial;
+    public PhysicMaterial piecePhysicalMaterial;
+    public float pieceSleepThreshold;
     public int ratioX;
     public int ratioY;
     public int numX;
@@ -146,7 +148,7 @@ void Start()
         sizeX = img.width * SizeFactor(img.width, img.height, sizeInCms);
         sizeY = img.height * SizeFactor(img.width, img.height, sizeInCms);
         sizeFactor = SizeFactor(img.width, img.height, sizeInCms);
-        sizeText.text = $"{sizeX.ToString("0.0")}x{sizeY.ToString("0.0")} cm";
+        sizeText.text = $"{sizeX}x{sizeY} cm";
 
         Destroy(imgObj);
         imgObj = new GameObject();
@@ -160,7 +162,7 @@ void Start()
         GeneratePiece.Build(imgObj, imgObjVectors, pieceThickness, false, frontMaterial, cardboardMaterial, new Vector2(), new Vector2(), 0, 0, 0, 0, 0, 0, 0, 0);
         if (sizeInCms > 95f)
         {
-            table.transform.localScale = new Vector3(sizeInCms * 0.0102f, 1f, sizeInCms * 0.0102f);
+            table.transform.localScale = new Vector3(sizeInCms * 0.01f, 1f, sizeInCms * 0.01f);
         }
         cam.fieldOfView = fieldOfViewMinimum + (sizeSlider.normalizedValue * fieldOfViewMaxAddend);
 
@@ -433,6 +435,8 @@ void Start()
                     pieceProps.joinThreshold = pieceJoinThreshold;
                     pieceProps.joinRotThreshold = pieceJoinRotationThreshold;
                     pieceProps.rotSpeed = pieceRotationSpeed;
+                    pieceProps.physMat = piecePhysicalMaterial;
+                    pieceProps.sleepThreshold = pieceSleepThreshold;
                     puzzlePieces.Add(piece);
 
                 }

@@ -28,8 +28,10 @@ public class PuzzlePiece : MonoBehaviour
     public Vector3 nextAboveRotOS;
     public Vector3 nextLeftRotOS;
     public BoxCollider pieceCollider;
+    public PhysicMaterial physMat;
     private Camera cam;
     private Rigidbody rb;
+    private MeshCollider coll;
     private GameObject cornerUL;
     private GameObject cornerLR;
     private Vector3 vecUL;
@@ -42,6 +44,7 @@ public class PuzzlePiece : MonoBehaviour
     public float joinThreshold;
     public float joinRotThreshold;
     public float rotSpeed;
+    public float sleepThreshold;
     public OutlineQ ol;
     public Vector3 vel;
     float distanceToScreen;
@@ -52,6 +55,7 @@ public class PuzzlePiece : MonoBehaviour
     
     void Start()
     {
+        joinable = false;
         hand = GameObject.FindGameObjectWithTag("Hand");
         finger = GameObject.FindGameObjectWithTag("IndexFinger");
         cam = Camera.main;
@@ -59,9 +63,13 @@ public class PuzzlePiece : MonoBehaviour
         if (gameObject.GetComponent<Rigidbody>() != null )
         {
             rb = gameObject.GetComponent<Rigidbody>();
+            coll = gameObject.GetComponent<MeshCollider>();
             rb.mass = 0.1f;
             rb.drag = 0.1f;
             startRotation = rb.transform.eulerAngles;
+            coll.material = physMat;
+            rb.sleepThreshold = sleepThreshold;
+
         }
         gameObject.tag = "PuzzlePiece";
         cornerUL = GameObject.FindGameObjectWithTag("BoxCornerUL");
@@ -70,7 +78,7 @@ public class PuzzlePiece : MonoBehaviour
         vecLR = cornerLR.transform.position;
         ol = gameObject.AddComponent<OutlineQ>();
         ol.enabled = false;
-        
+
 
         //pieceCollider = gameObject.AddComponent<BoxCollider>();
         //pieceCollider.isTrigger = true;
