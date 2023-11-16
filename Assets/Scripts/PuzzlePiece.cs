@@ -42,6 +42,7 @@ public class PuzzlePiece : MonoBehaviour
     private bool compatible;
     public float joinThreshold;
     public float joinRotThreshold;
+    public float rotSpeed;
     public OutlineQ ol;
     public Vector3 vel;
     float distanceToScreen;
@@ -103,21 +104,19 @@ public class PuzzlePiece : MonoBehaviour
         var rot = rb.transform.rotation.eulerAngles;
         if (Input.GetKey(KeyCode.LeftShift)) 
         {
-            rot += new Vector3(0, 0, Input.mouseScrollDelta.y * 10f);
+            rot += new Vector3(0, 0, Input.mouseScrollDelta.y * rotSpeed);
         }
         else if (Input.GetKey(KeyCode.LeftControl))
         {
-            rot += new Vector3(Input.mouseScrollDelta.y * 10f, 0, 0);
+            rot += new Vector3(Input.mouseScrollDelta.y * rotSpeed, 0, 0);
         }
         else
         {
-            rot += new Vector3(0, Input.mouseScrollDelta.y * 10f, 0);
+            rot += new Vector3(0, Input.mouseScrollDelta.y * rotSpeed, 0);
         }
         Quaternion quatRot = new Quaternion();
         quatRot.eulerAngles = rot;
         rb.transform.rotation = quatRot;
-        //rot.y += Input.mouseScrollDelta.y;
-        //rb.transform.LookAt(cam.transform.position, rb.transform.up);
         vel = rb.velocity;
     }
 
@@ -145,7 +144,7 @@ public class PuzzlePiece : MonoBehaviour
         ol.OutlineWidth = 3;
         ol.enabled = false;
         StopCoroutine(PickedPiece(2f, new Vector3(0,0,0)));
-        camMouse.holding = true;
+        camMouse.holding = false;
         if (camMouse.closerLook == true)
         {
             RaycastHit hitinfo = new RaycastHit();
@@ -172,7 +171,44 @@ public class PuzzlePiece : MonoBehaviour
                 {
                     if (Vector3.Distance((collision.rigidbody.transform.position - rb.transform.position), nextAboveOffset) < joinThreshold && Vector3.Distance((collision.rigidbody.transform.eulerAngles -  rb.transform.eulerAngles), nextAboveRotOS) < joinRotThreshold)
                     {
-                        Debug.Log("They fit!");
+                        print($"{name} and {collision.gameObject.name} fit together!\nDifference from initial offset:{Vector3.Distance((collision.rigidbody.transform.position - rb.transform.position), nextAboveOffset)}\nDifference from initial rotational offset: {Vector3.Distance((collision.rigidbody.transform.eulerAngles - rb.transform.eulerAngles), nextAboveRotOS)}");
+                    }
+                    else
+                    {
+                        print($"{name} and {collision.gameObject.name} fit together, but not like this.");
+                    }
+                }
+                else if (hasNextBelow && collision.gameObject == nextBelow)
+                {
+                    if (Vector3.Distance((collision.rigidbody.transform.position - rb.transform.position), nextBelowOffset) < joinThreshold && Vector3.Distance((collision.rigidbody.transform.eulerAngles - rb.transform.eulerAngles), nextBelowRotOS) < joinRotThreshold)
+                    {
+                        Debug.Log($"{name} and {collision.gameObject.name} fit together!\nDifference from initial offset:{Vector3.Distance((collision.rigidbody.transform.position - rb.transform.position), nextBelowOffset)}\nDifference from initial rotational offset: {Vector3.Distance((collision.rigidbody.transform.eulerAngles - rb.transform.eulerAngles), nextBelowRotOS)}");
+                    }
+                    else
+                    {
+                        print($"{name} and {collision.gameObject.name} fit together, but not like this.");
+                    }
+                }
+                else if (hasNextRight && collision.gameObject == nextRight)
+                {
+                    if (Vector3.Distance((collision.rigidbody.transform.position - rb.transform.position), nextRightOffset) < joinThreshold && Vector3.Distance((collision.rigidbody.transform.eulerAngles - rb.transform.eulerAngles), nextRightRotOS) < joinRotThreshold)
+                    {
+                        Debug.Log($"{name} and {collision.gameObject.name} fit together!\nDifference from initial offset:{Vector3.Distance((collision.rigidbody.transform.position - rb.transform.position), nextRightOffset)}\nDifference from initial rotational offset: {Vector3.Distance((collision.rigidbody.transform.eulerAngles - rb.transform.eulerAngles), nextRightRotOS)}");
+                    }
+                    else
+                    {
+                        print($"{name} and {collision.gameObject.name} fit together, but not like this.");
+                    }
+                }
+                else if (hasNextLeft && collision.gameObject == nextLeft)
+                {
+                    if (Vector3.Distance((collision.rigidbody.transform.position - rb.transform.position), nextLeftOffset) < joinThreshold && Vector3.Distance((collision.rigidbody.transform.eulerAngles - rb.transform.eulerAngles), nextLeftRotOS) < joinRotThreshold)
+                    {
+                        Debug.Log($"{name} and {collision.gameObject.name} fit together!\nDifference from initial offset:{Vector3.Distance((collision.rigidbody.transform.position - rb.transform.position), nextLeftOffset)}\nDifference from initial rotational offset: {Vector3.Distance((collision.rigidbody.transform.eulerAngles - rb.transform.eulerAngles), nextLeftRotOS)}");
+                    }
+                    else
+                    {
+                        print($"{name} and {collision.gameObject.name} fit together, but not like this.");
                     }
                 }
             }

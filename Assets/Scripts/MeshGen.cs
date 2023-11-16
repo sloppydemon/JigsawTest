@@ -25,7 +25,6 @@ public class MeshGen : MonoBehaviour
     public GameObject piece;
     public Texture2D img;
     public Texture2D heightMap;
-    public Texture2D normalMap;
     public Slider sizeSlider;
     public Slider numberSlider;
     public TextMeshProUGUI sizeText;
@@ -36,6 +35,9 @@ public class MeshGen : MonoBehaviour
     public TextMeshProUGUI momentText;
     public TextMeshProUGUI instructTextA;
     public TextMeshProUGUI instructTextB;
+    public Button retryButton;
+    public Button newSettingsButton;
+    public bool meshingFailed;
     public TMP_InputField inputNumber;
     public float sizeInCms;
     public float sizeFactor;
@@ -53,9 +55,11 @@ public class MeshGen : MonoBehaviour
     public float fieldOfViewMinimum;
     public float fieldOfViewMaxAddend;
     public float pieceThickness;
-    public float bezierRetryIncrement;
+    public float bezierRetryIncrementUp;
+    public float bezierRetryIncrementDown;
     public float pieceJoinThreshold;
     public float pieceJoinRotationThreshold;
+    public float pieceRotationSpeed;
     public int numberOfBezierRetries;
     static float SizeFactor(float y, float x, float size)
     {
@@ -73,11 +77,11 @@ public class MeshGen : MonoBehaviour
 void Start()
     {
         cam.gameObject.GetComponent<CameraMouse>().enabled = false;
+        alertText.text = "";
         startButton.interactable = false;
         startButton.enabled = false;
         startButton.gameObject.SetActive(false);
         offsetsCalculated = false;
-        alertText.text = "";
         GOsToDestroy = new List<GameObject>();
         pts = new List<Vector3>();
         sizeInCms = 80f;
@@ -95,6 +99,8 @@ void Start()
         inputNumber.onEndEdit.AddListener(delegate { NumberInputChanged(inputNumber.text); });
         generateButton.onClick.AddListener(delegate { GenerateClicked(); });
         startButton.onClick.AddListener(delegate { StartPuzzling(); });
+        retryButton.onClick.AddListener(delegate { RetryClicked(); });
+        newSettingsButton.onClick.AddListener(delegate { NewSettingsClicked(); });
         cam.fieldOfView = fieldOfViewMinimum + (sizeSlider.normalizedValue * fieldOfViewMaxAddend);
 
         gcd = PuzzlePieceCalc.GCD(img.width, img.height);
@@ -115,7 +121,7 @@ void Start()
         imgObjVectors.Add(new Vector3(sizeX * 0.05f, 0, -sizeY * 0.05f));
         imgObjVectors.Add(new Vector3(sizeX * 0.05f, 0, sizeY * 0.05f));
         imgObjVectors.Add(new Vector3(-sizeX * 0.05f, 0, sizeY * 0.05f));
-        GeneratePiece.Build(imgObj, imgObjVectors, pieceThickness, false, frontMaterial, cardboardMaterial, false, new Vector2(), new Vector2());
+        GeneratePiece.Build(imgObj, imgObjVectors, pieceThickness, false, frontMaterial, cardboardMaterial, new Vector2(), new Vector2(), 0, 0, 0, 0, 0, 0, 0, 0);
 
         if (buildable)
         {
@@ -151,7 +157,7 @@ void Start()
         imgObjVectors.Add(new Vector3(sizeX * 0.05f, 0, -sizeY * 0.05f));
         imgObjVectors.Add(new Vector3(sizeX * 0.05f, 0, sizeY * 0.05f));
         imgObjVectors.Add(new Vector3(-sizeX * 0.05f, 0, sizeY * 0.05f));
-        GeneratePiece.Build(imgObj, imgObjVectors, pieceThickness, false, frontMaterial, cardboardMaterial, false, new Vector2(), new Vector2());
+        GeneratePiece.Build(imgObj, imgObjVectors, pieceThickness, false, frontMaterial, cardboardMaterial, new Vector2(), new Vector2(), 0, 0, 0, 0, 0, 0, 0, 0);
         if (sizeInCms > 95f)
         {
             table.transform.localScale = new Vector3(sizeInCms * 0.0102f, 1f, sizeInCms * 0.0102f);
@@ -427,57 +433,10 @@ void Start()
                     float xFac = 1f / (float)numX;
                     float yFac = 1f / (float)numY;
                     Vector2 uvOffset = new Vector2(-j * xFac, -i * yFac);
-                    GeneratePiece.Build(piece, piecePts, pieceThickness, true, frontMaterial, cardboardMaterial, flipNormals, uvScale, uvOffset);
-                    ProBuilderMesh verts = piece.GetComponent<ProBuilderMesh>();
-                    int retry = 0;
-                    if (verts.vertexCount == 0)
-                    {
-                        Debug.Log($"Meshing of {piece.name} failed!");
-                        while (retry < numberOfBezierRetries)
-                        {
-                            puzzlePiecesToDestroy.Add( piece );
-                            puzzlePieces.Remove( piece );
-                            retry++;
-                            float retryIncrementDown = bezDetail - bezierRetryIncrement * retry;
-                            float retryIncrementUp = bezDetail + bezierRetryIncrement * retry;
-                            Debug.Log($"Retrying at bezier resolution {retryIncrementUp}...");
-                            piece = GeneratePiece.CollectPoints(sizeX, sizeY, i, j, retryIncrementUp, numX, numY);
-                            pieceProps = piece.gameObject.GetComponent<PuzzlePiece>();
-                            GeneratePiece.Build(piece, pieceProps.piecePoints, pieceThickness, true, frontMaterial, cardboardMaterial, flipNormals, uvScale, uvOffset);
-                            verts = piece.GetComponent<ProBuilderMesh>();
-                            if (verts.vertexCount != 0)
-                            {
-                                Debug.Log("Success!");
-                                break;
-                            }
-                            else
-                            {
-                                Debug.Log($"Failed!");
-                            }
-                            if (retryIncrementDown > 0)
-                            {
-                                
-                                Debug.Log($"Retrying at bezier resolution {retryIncrementDown}...");
-                                puzzlePiecesToDestroy.Add(piece );
-                                puzzlePieces.Remove( piece );
-                                piece = GeneratePiece.CollectPoints(sizeX, sizeY, i, j, retryIncrementUp, numX, numY);
-                                pieceProps = piece.gameObject.GetComponent<PuzzlePiece>();
-                                GeneratePiece.Build(piece, pieceProps.piecePoints, pieceThickness, true, frontMaterial, cardboardMaterial, flipNormals, uvScale, uvOffset);
-                                verts = piece.GetComponent<ProBuilderMesh>();
-                                if (verts.vertexCount != 0)
-                                {
-                                    Debug.Log("Success!");
-                                    break;
-                                }
-                                else
-                                {
-                                    Debug.Log($"Failed!");
-                                }
-                            }
-                        }
-                    }
+                    GeneratePiece.Build(piece, piecePts, pieceThickness, true, frontMaterial, cardboardMaterial, uvScale, uvOffset, numberOfBezierRetries, bezDetail, bezierRetryIncrementUp, bezierRetryIncrementDown, sizeX, sizeY, numX, numY);
                     pieceProps.joinThreshold = pieceJoinThreshold;
                     pieceProps.joinRotThreshold = pieceJoinRotationThreshold;
+                    pieceProps.rotSpeed = pieceRotationSpeed;
                     puzzlePieces.Add(piece);
 
                 }
@@ -531,6 +490,26 @@ void Start()
         startButton.gameObject.SetActive(true);
         startButton.enabled = true;
         startButton.interactable = true;
+
+        if (meshingFailed)
+        {
+            alertText.text = "Some pieces failed to mesh. \u2639";
+            retryButton.gameObject.SetActive(true);
+            newSettingsButton.gameObject.SetActive(true);
+            startButton.gameObject.SetActive(false);
+        }
+    }
+
+    public void RetryClicked()
+    {
+        meshingFailed = false;
+        GenerateLines();
+        GenerateClicked();
+    }
+
+    public void NewSettingsClicked()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex, LoadSceneMode.Single);
     }
 
     public void StartPuzzling()

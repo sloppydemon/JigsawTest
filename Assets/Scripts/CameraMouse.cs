@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -27,6 +28,8 @@ public class CameraMouse : MonoBehaviour
     public float closerLerpSpeed;
     public bool closerLook;
     public float closerLookHeight;
+    public float minLookHeight;
+    public float maxLookHeight;
     public bool holding;
 
     void Start()
@@ -53,9 +56,22 @@ public class CameraMouse : MonoBehaviour
                 cam.fieldOfView = 90;
             }
         }
-        else
+
+        if (!holding)
         {
-            if (!holding)
+            if (closerLook)
+            {
+                closerLookHeight -= Input.mouseScrollDelta.y * dollySpeed;
+                if (closerLookHeight < minLookHeight)
+                {
+                    closerLookHeight = minLookHeight;
+                }
+                else if (closerLookHeight > maxLookHeight)
+                {
+                    closerLookHeight = maxLookHeight;
+                }
+            }
+            else
             {
                 dollyLvl += Input.mouseScrollDelta.y * dollySpeed;
                 if (dollyLvl < 0)
@@ -69,6 +85,8 @@ public class CameraMouse : MonoBehaviour
                 posBeforeLerp = Vector3.Lerp(minDolly, maxDolly, dollyLvl);
             }
         }
+        
+        
 
         if (Input.GetMouseButtonDown(1))
         {
