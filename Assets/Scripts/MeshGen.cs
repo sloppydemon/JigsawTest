@@ -333,13 +333,11 @@ void Start()
                     PuzzlePiece pieceProps = piece.AddComponent<PuzzlePiece>();
                     pieceProps.pieceX = j;
                     pieceProps.pieceY = i;
-                    bool flipNormals = true;
                     List<Vector3> piecePts = new List<Vector3>();
                     if (i == 0)
                     {
                         if (j == 0)
                         {
-                            flipNormals = false;
                             piecePts = CalculatePiece.PiecePoints(true, true, false, false, true, sizeX, sizeY, j, i, LineGenerator.PointsDown.Count, bezDetail);
                             pieceProps.hasNextBelow = false;
                             pieceProps.hasNextRight = true;
@@ -370,7 +368,6 @@ void Start()
                     {
                         if (j == 0)
                         {
-                            flipNormals = false;
                             piecePts = CalculatePiece.PiecePoints(true, false, false, true, true, sizeX, sizeY, j, i, LineGenerator.PointsDown.Count, bezDetail);
                             pieceProps.hasNextBelow = true;
                             pieceProps.hasNextRight = true;
@@ -401,7 +398,6 @@ void Start()
                     {
                         if (j == 0)
                         {
-                            flipNormals = false;
                             piecePts = CalculatePiece.PiecePoints(false, false, false, false, true, sizeX, sizeY, j, i, LineGenerator.PointsDown.Count, bezDetail);
                             pieceProps.hasNextBelow = true;
                             pieceProps.hasNextRight = true;

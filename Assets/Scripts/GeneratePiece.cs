@@ -34,7 +34,7 @@ public class GeneratePiece : MonoBehaviour
                 print($"Meshing of {go.name} FAILED! Retry no.: {retry}. Retrying at bezier resolution {retryIncrementUp}...");
                 newPoints = CollectPoints(newPoints, sizeX, sizeY, pieceProps.pieceX, pieceProps.pieceY, retryIncrementUp, numX, numY);
                 newPoints.Distinct().ToList();
-                m_Mesh.CreateShapeFromPolygon(newPoints, extrusion, pieceProps.flipNormals);
+                m_Mesh.CreateShapeFromPolygon(newPoints, extrusion, false);
                 if (m_Mesh.vertexCount > 0)
                 {
                     print($"SUCCESS! At bezier resolution: {retryIncrementUp}. Retry no.:{retry}");
@@ -52,7 +52,7 @@ public class GeneratePiece : MonoBehaviour
                         newPoints.Clear();
                         newPoints = CollectPoints(newPoints, sizeX, sizeY, pieceProps.pieceX, pieceProps.pieceY, retryIncrementUp, numX, numY);
                         newPoints.Distinct().ToList();
-                        m_Mesh.CreateShapeFromPolygon(newPoints, extrusion, pieceProps.flipNormals);
+                        m_Mesh.CreateShapeFromPolygon(newPoints, extrusion, false);
                         if (m_Mesh.vertexCount > 0)
                         {
                             print($"SUCCESS! At bezier resolution: {retryIncrementDown}. Retry no.:{retry}");
@@ -173,7 +173,6 @@ public class GeneratePiece : MonoBehaviour
         {
             if (j == 0)
             {
-                pieceProps.flipNormals = false;
                 pieceProps.hasNextBelow = false;
                 pieceProps.hasNextRight = true;
                 pieceProps.hasNextAbove = true;
@@ -201,7 +200,6 @@ public class GeneratePiece : MonoBehaviour
         {
             if (j == 0)
             {
-                pieceProps.flipNormals = false;
                 pieceProps.hasNextBelow = true;
                 pieceProps.hasNextRight = true;
                 pieceProps.hasNextAbove = false;
@@ -229,7 +227,6 @@ public class GeneratePiece : MonoBehaviour
         {
             if (j == 0)
             {
-                pieceProps.flipNormals = false;
                 pieceProps.hasNextBelow = true;
                 pieceProps.hasNextRight = true;
                 pieceProps.hasNextAbove = true;

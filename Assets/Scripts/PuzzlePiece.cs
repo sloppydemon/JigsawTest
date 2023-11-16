@@ -11,7 +11,6 @@ public class PuzzlePiece : MonoBehaviour
     public bool hasNextAbove;
     public bool hasNextLeft;
     public bool cornerPiece;
-    public bool flipNormals;
     public int pieceX;
     public int pieceY;
     public GameObject hand;
