@@ -1,7 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.ConstrainedExecution;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.ProBuilder;
+using UnityEngine.ProBuilder.MeshOperations;
 using UnityEngine.UI;
 
 public class PuzzlePiece : MonoBehaviour
@@ -19,6 +23,11 @@ public class PuzzlePiece : MonoBehaviour
     public GameObject nextRight;
     public GameObject nextAbove;
     public GameObject nextLeft;
+    public GameObject ghost;
+    public OutlineQ ghostOL;
+    public ProBuilderMesh ghostPM;
+    public Rigidbody ghostRB;
+    public MeshCollider ghostColl;
     public Vector3 nextBelowOffset;
     public Vector3 nextRightOffset;
     public Vector3 nextAboveOffset;
@@ -49,12 +58,17 @@ public class PuzzlePiece : MonoBehaviour
     public OutlineQ ol;
     public Vector3 vel;
     float distanceToScreen;
+    public float pieceSizeX;
+    public float pieceSizeY;
     Vector3 startRotation;
     CameraMouse camMouse;
     public List<Vector3> piecePoints;
     GameObject gameGO;
     MeshGen game;
     AudioSource sndSource;
+    RaycastHit hitinfo;
+    bool hit;
+    Vector3 dirMod;
     
     void Start()
     {
@@ -70,11 +84,12 @@ public class PuzzlePiece : MonoBehaviour
         {
             rb = gameObject.GetComponent<Rigidbody>();
             coll = gameObject.GetComponent<MeshCollider>();
-            rb.mass = 0.1f;
+            rb.mass = (pieceSizeX*pieceSizeY) / 0.4f;
             rb.drag = 0.1f;
             startRotation = rb.transform.eulerAngles;
             coll.material = physMat;
             rb.sleepThreshold = sleepThreshold;
+
 
         }
         gameObject.tag = "PuzzlePiece";
@@ -104,6 +119,7 @@ public class PuzzlePiece : MonoBehaviour
         camMouse.holding = true;
         distanceToScreen = cam.WorldToScreenPoint(rb.transform.position).z;
         joinable = true;
+        gameObject.layer = 2;
         var rot = rb.transform.eulerAngles;
         if (Input.GetMouseButton(1))
         {
@@ -113,6 +129,23 @@ public class PuzzlePiece : MonoBehaviour
         {
             StartCoroutine(PickedPiece(1f, rot));
         }
+        ghost = Instantiate(gameObject, game.table.transform);
+        ghost.GetComponent<PuzzlePiece>().enabled = false;
+        ghostOL = ghost.GetComponent<OutlineQ>();
+        ghostOL.enabled = false;
+        ghostPM = ghost.GetComponent<ProBuilderMesh>();
+        ghost.tag = "PuzzlePieceGhost";
+        ghost.layer = 2;
+        ghostPM.SetMaterial(ghostPM.faces, game.ghostMaterial);
+        ghostPM.ToMesh();
+        ghostPM.Refresh();
+        ghostRB = ghost.GetComponent<Rigidbody>();
+        ghostRB.isKinematic = true;
+        ghostRB.useGravity = false;
+        ghostColl = ghost.GetComponent<MeshCollider>();
+        ghostColl.isTrigger = true;
+        ghostOL.enabled = true;
+        ghostOL.OutlineColor = Color.cyan;
     }
 
     private void OnMouseDrag()
@@ -135,6 +168,50 @@ public class PuzzlePiece : MonoBehaviour
         quatRot.eulerAngles = rot;
         rb.transform.rotation = quatRot;
         vel = rb.velocity;
+
+        if (camMouse.closerLook)
+        {
+            hitinfo = new RaycastHit();
+            Debug.DrawRay(transform.position, cam.transform.forward * 15f, Color.green);
+            hit = Physics.Raycast(transform.position, cam.transform.forward, out hitinfo, 15f);
+            if (hit)
+            {
+                //Debug.Log($"{hitinfo.collider.tag}, {hitinfo.point}");
+                if (hitinfo.collider.tag == "Table" || hitinfo.collider.tag == "PuzzlePiece")
+                {
+                    ghost.transform.position = hitinfo.point + new Vector3(0, 0.12f, 0);
+                    ghost.transform.eulerAngles = new Vector3(startRotation.x, rb.transform.eulerAngles.y, startRotation.z);
+                }
+                else
+                {
+                    ghost.transform.position = new Vector3(0, 0, -20);
+                }
+            }
+        }
+        else
+        {
+            hitinfo = new RaycastHit();
+            dirMod = camMouse.ray.direction + new Vector3(Random.Range(-0.04f, 0.04f), Random.Range(-0.04f, 0.04f), Random.Range(-0.04f, 0.04f));
+            hit = Physics.Raycast(camMouse.ray.origin, dirMod, out hitinfo, 20f);
+            if (hit)
+            {
+                Debug.DrawRay(camMouse.ray.origin, dirMod * hitinfo.distance, Color.cyan);
+                //Debug.Log($"{hitinfo.collider.tag}, {hitinfo.point}");
+                if (hitinfo.collider.tag == "Table" || hitinfo.collider.tag == "PuzzlePiece")
+                {
+                    ghost.transform.position = hitinfo.point + new Vector3(0, 0.12f, 0);
+                    ghost.transform.eulerAngles = new Vector3(startRotation.x, rb.transform.eulerAngles.y + Random.Range(-1f, 1f) * hitinfo.distance, startRotation.z);
+                }
+                else
+                {
+                    ghost.transform.position = new Vector3(0, 0, -20);
+                }
+            }
+            else
+            {
+                ghost.transform.position = new Vector3(0, 0, -20);
+            }
+        }
     }
 
     private void OnMouseEnter()
@@ -164,18 +241,54 @@ public class PuzzlePiece : MonoBehaviour
         camMouse.holding = false;
         if (camMouse.closerLook == true)
         {
-            RaycastHit hitinfo = new RaycastHit();
-            bool hit = Physics.Raycast(transform.position, cam.transform.forward, out  hitinfo, 10f);
-            Debug.DrawRay(transform.position, cam.transform.forward, Color.red, 1);
-            rb.transform.position = hitinfo.point + new Vector3(0,0.12f,0);
-            rb.transform.eulerAngles = new Vector3(startRotation.x, rb.transform.eulerAngles.y, startRotation.z);
-            rb.velocity = Vector3.zero;
-            joinable = true;
+            if (hit)
+            {
+                if (hitinfo.collider.tag == "Table")
+                {
+                    rb.transform.position = ghostRB.transform.position;
+                    rb.transform.eulerAngles = ghostRB.transform.eulerAngles;
+                    rb.velocity = Vector3.zero;
+                    joinable = true;
+                }
+                else
+                {
+                    rb.velocity = Vector3.zero;
+                }
+            }
+            else
+            {
+                joinable = false;
+            }
+
+            
+            
+            gameObject.layer = 0;
         }
         else
         {
-            rb.velocity = (rb.transform.position - cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Input.mousePosition.z))) * 20f + new Vector3(0,5,0);
+            Vector3 lowAngle;
+            Vector3 highAngle;
+            if (hit)
+            {
+                if (hitinfo.collider.tag == "Table" || hitinfo.collider.tag == "PuzzlePiece")
+                {
+                    Debug.Log(Ballistics.CalculateVector(camMouse.ray.origin, 20f, hitinfo.point, -Physics.gravity.y, out lowAngle, out highAngle));
+                    rb.velocity += lowAngle;
+                }
+                else
+                {
+                    Debug.Log(Ballistics.CalculateVector(camMouse.ray.origin, 30f, hitinfo.point, -Physics.gravity.y, out lowAngle, out highAngle));
+                    rb.velocity += lowAngle;
+                }
+            }
+            else
+            {
+                Debug.Log(Ballistics.CalculateVector(camMouse.ray.origin, 50f, camMouse.ray.origin + (camMouse.ray.direction * 50f), -Physics.gravity.y, out lowAngle, out highAngle));
+                rb.velocity += lowAngle;
+            }
         }
+        gameObject.layer = 0;
+        Destroy(ghost);
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -192,7 +305,7 @@ public class PuzzlePiece : MonoBehaviour
                 sndSource.PlayOneShot(snd, collision.impulse.magnitude);
             }
 
-            if (joinable)
+            if (joinable && collision.gameObject.GetComponent<PuzzlePiece>().joinable)
             {
                 if (hasNextAbove && collision.gameObject == nextAbove)
                 {

@@ -3686,6 +3686,8 @@ MonoBehaviour:
     type: 3}
   table: {fileID: 91142077}
   piece: {fileID: 0}
+  pieceGhost: {fileID: 2102884147747686377, guid: 3c62be66e35af354ca355f7f3e0309d9,
+    type: 3}
   GOsToDestroy: []
   puzzlePieces: []
   puzzlePiecesToDestroy: []
@@ -3725,12 +3727,15 @@ MonoBehaviour:
   numberOfBezierRetries: 100
   cardboardMaterial: {fileID: 2100000, guid: e6606306abe99754ba399cb623820226, type: 2}
   frontMaterial: {fileID: 2100000, guid: a5eab41de6eec7d4eb33255a18608c0f, type: 2}
+  ghostMaterial: {fileID: 2100000, guid: 44ac788ae14dda440a2103b400f33d44, type: 2}
   piecePhysicalMaterial: {fileID: 13400000, guid: 7aa81a1e800ad864ea92043012b85a0e,
     type: 2}
   pieceSleepThreshold: 0.5
   pieceJoinThreshold: 20
   pieceJoinRotationThreshold: 100
   pieceRotationSpeed: 5
+  approxPieceSizeX: 0
+  approxPieceSizeY: 0
   cam: {fileID: 1087322890}
   fieldOfViewMinimum: 20
   fieldOfViewMaxAddend: 90
@@ -4771,7 +4776,7 @@ GameObject:
   - component: {fileID: 1496393625}
   m_Layer: 0
   m_Name: TableRayCast
-  m_TagString: Untagged
+  m_TagString: Table
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

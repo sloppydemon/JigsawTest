@@ -13,6 +13,7 @@ TagManager:
   - LookAtPieceLocation
   - LineHolder
   - Table
+  - PuzzlePieceGhost
   layers:
   - Default
   - TransparentFX

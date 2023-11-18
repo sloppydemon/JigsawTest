@@ -15,6 +15,9 @@ public class GeneratePiece : MonoBehaviour
         PuzzlePiece pieceProps = go.GetComponent<PuzzlePiece>();
         points = points.Distinct().ToList();
         m_Mesh.CreateShapeFromPolygon(points, extrusion, false);
+        float xCalc = 0f;
+        float yCalc = 0f;
+        Vector3 pivot = Vector3.zero;
 
         if (m_Mesh.vertexCount == 0)
         {
@@ -85,6 +88,7 @@ public class GeneratePiece : MonoBehaviour
                     fill = AutoUnwrapSettings.Fill.Stretch,
                     scale = new Vector2(1, 1)
                 };
+                pivot = new Vector3(0, go.transform.position.y, 0);
             }
             else
             {
@@ -95,14 +99,18 @@ public class GeneratePiece : MonoBehaviour
                     scale = uvScale,
                     offset = uvOffset
                 };
+                xCalc = ((sizeX / (float)numX) * pieceProps.pieceX + ((sizeX / (float)numX) / 2)) * 0.1f;
+                yCalc = ((sizeY / (float)numY) * pieceProps.pieceY + ((sizeY / (float)numY) / 2)) * 0.1f;
+                pivot = new Vector3(go.transform.position.x + xCalc, go.transform.position.y, go.transform.position.z + yCalc);
             }
             m_Mesh.Refresh(RefreshMask.UV);
-            int[] pivotCtrl = new int[m_Mesh.vertexCount];
-            for (int i = 0; i < m_Mesh.vertexCount; i++)
-            {
-                pivotCtrl.Append(i);
-            }
-            m_Mesh.CenterPivot(pivotCtrl);
+            //int[] pivotCtrl = new int[m_Mesh.vertexCount];
+            //for (int i = 0; i < m_Mesh.vertexCount; i++)
+            //{
+            //    pivotCtrl.Append(i);
+            //}
+            //m_Mesh.CenterPivot(pivotCtrl);
+            m_Mesh.SetPivot(pivot);
             m_Mesh.ToMesh();
             m_Mesh.Refresh();
             if (addCollider)

@@ -12,6 +12,7 @@ public class MeshGen : MonoBehaviour
     public GameObject LinePrefab;
     public GameObject table;
     public GameObject piece;
+    public GameObject pieceGhost;
     public List<GameObject> GOsToDestroy;
     public List<GameObject> puzzlePieces;
     public List<GameObject> puzzlePiecesToDestroy;
@@ -87,11 +88,16 @@ public class MeshGen : MonoBehaviour
     [Header("Puzzle piece parameters:")]
     public Material cardboardMaterial;
     public Material frontMaterial;
+    public Material ghostMaterial;
     public PhysicMaterial piecePhysicalMaterial;
     public float pieceSleepThreshold;
     public float pieceJoinThreshold;
     public float pieceJoinRotationThreshold;
     public float pieceRotationSpeed;
+    [SerializeField]
+    float approxPieceSizeX;
+    [SerializeField]
+    float approxPieceSizeY;
     #endregion
 
     #region CameraSettings
@@ -261,6 +267,8 @@ public class MeshGen : MonoBehaviour
         int newdiff = numberOfPieces - (numX * numY);
         float indSizeX = sizeX / numX;
         float indSizeY = sizeY / numY;
+        approxPieceSizeX = indSizeX * 0.1f;
+        approxPieceSizeY = indSizeY * 0.1f;
 
         if (diff == 0)
         {
@@ -476,6 +484,8 @@ public class MeshGen : MonoBehaviour
                     pieceProps.rotSpeed = pieceRotationSpeed;
                     pieceProps.physMat = piecePhysicalMaterial;
                     pieceProps.sleepThreshold = pieceSleepThreshold;
+                    pieceProps.pieceSizeX = approxPieceSizeX;
+                    pieceProps.pieceSizeY = approxPieceSizeY;
                     puzzlePieces.Add(piece);
 
                 }

@@ -31,6 +31,7 @@ public class CameraMouse : MonoBehaviour
     public float minLookHeight;
     public float maxLookHeight;
     public bool holding;
+    public Ray ray;
 
     void Start()
     {
@@ -44,6 +45,9 @@ public class CameraMouse : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        ray = cam.ScreenPointToRay(Input.mousePosition);
+        Debug.DrawRay(ray.origin, ray.direction * 20f, Color.red);
+
         if (Input.GetMouseButton(2))
         {
             cam.fieldOfView -= (((currentMousePosition.y - 0.5f) *2f) * FOVSpeed);
@@ -111,6 +115,7 @@ public class CameraMouse : MonoBehaviour
         quatRot.eulerAngles = Vector3.Lerp(newRot, new Vector3(90f, 0f, 0f), closerLerp);
         transform.rotation = quatRot;
         transform.position = Vector3.Lerp(posBeforeLerp, new Vector3((-3.8f) + (7.8f * currentMousePosition.x), closerLookHeight, (-5.37f) + (7.74f * currentMousePosition.y)), closerLerp);
+        
     }
 
     IEnumerator GettingACloserLook()
