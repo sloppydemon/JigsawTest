@@ -3682,14 +3682,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea89016976c680140be979f920a8a659, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  generateButton: {fileID: 1977224480}
-  startButton: {fileID: 580083916}
   LinePrefab: {fileID: 8437824450925067081, guid: 3771b27fb33ad1442bd6fa5808899c66,
     type: 3}
   table: {fileID: 91142077}
   piece: {fileID: 0}
+  GOsToDestroy: []
+  puzzlePieces: []
+  puzzlePiecesToDestroy: []
   img: {fileID: 2800000, guid: ccc2cb494d63fef459a742416264e2f7, type: 3}
   heightMap: {fileID: 0}
+  softenIterations: 3
   sizeSlider: {fileID: 1854784403}
   numberSlider: {fileID: 1151822609}
   sizeText: {fileID: 683935518}
@@ -3700,40 +3702,38 @@ MonoBehaviour:
   momentText: {fileID: 1350886965}
   instructTextA: {fileID: 990548394}
   instructTextB: {fileID: 55074220}
+  generateButton: {fileID: 1977224480}
+  startButton: {fileID: 580083916}
   retryButton: {fileID: 612958971}
   newSettingsButton: {fileID: 1840606359}
-  meshingFailed: 0
   inputNumber: {fileID: 210709186}
+  meshingFailed: 0
+  buildable: 0
   sizeInCms: 0
   sizeFactor: 0
-  bezDetail: 0.01
+  ratioX: 0
+  ratioY: 0
+  numX: 0
+  numY: 0
+  gcd: 0
+  numberOfPieces: 400
   bezDetailLines: 0.05
+  bezDetail: 0.01
+  pieceThickness: 0.0125
+  bezierRetryIncrementUp: 0.0005
+  bezierRetryIncrementDown: 0.0001
+  numberOfBezierRetries: 100
   cardboardMaterial: {fileID: 2100000, guid: e6606306abe99754ba399cb623820226, type: 2}
   frontMaterial: {fileID: 2100000, guid: a5eab41de6eec7d4eb33255a18608c0f, type: 2}
   piecePhysicalMaterial: {fileID: 13400000, guid: 7aa81a1e800ad864ea92043012b85a0e,
     type: 2}
   pieceSleepThreshold: 0.5
-  ratioX: 0
-  ratioY: 0
-  numX: 0
-  numY: 0
-  buildable: 0
-  gcd: 0
-  cam: {fileID: 1087322890}
-  fieldOfViewMinimum: 20
-  fieldOfViewMaxAddend: 90
-  pieceThickness: 0.0125
-  bezierRetryIncrementUp: 0.0005
-  bezierRetryIncrementDown: 0.0001
   pieceJoinThreshold: 20
   pieceJoinRotationThreshold: 100
   pieceRotationSpeed: 5
-  numberOfBezierRetries: 100
-  numberOfPieces: 400
-  GOsToDestroy: []
-  puzzlePieces: []
-  puzzlePiecesToDestroy: []
-  offsetsCalculated: 0
+  cam: {fileID: 1087322890}
+  fieldOfViewMinimum: 20
+  fieldOfViewMaxAddend: 90
   soundsImpactPiecePiece:
   - {fileID: 8300000, guid: 17c42b14bdbec724fbc2ecdd969791f3, type: 3}
   - {fileID: 8300000, guid: 3c053d87605ae79419362e6da738347c, type: 3}

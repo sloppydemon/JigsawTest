@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class HeightMapGenerator : MonoBehaviour
 {
-    public static Texture2D GenerateHeightMap(Texture2D img, float sizeX, float sizeY, bool soften)
+    public static Texture2D GenerateHeightMap(Texture2D img, float sizeX, float sizeY, bool soften, int softI)
     {
         List<Vector3> xPoints = new List<Vector3>();
         Texture2D blank;
@@ -26,7 +26,21 @@ public class HeightMapGenerator : MonoBehaviour
 
         if (soften)
         {
-            Soften(blank, Color.white);
+            if (softI < 1)
+            {
+                softI = 1;
+            }
+            for (int i = 0;i < softI;i++)
+            {
+                if (i < 1)
+                {
+                    Soften(blank, Color.white);
+                }
+                else
+                {
+                    Soften(blank, Color.green);
+                }
+            }
         }
 
         blank.Apply();

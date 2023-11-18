@@ -22,6 +22,7 @@ public class MeshGen : MonoBehaviour
     [Header("Texture references:")]
     public Texture2D img;
     public Texture2D heightMap;
+    public int softenIterations;
     #endregion
 
     #region UIReferences
@@ -359,7 +360,7 @@ public class MeshGen : MonoBehaviour
     {
         if (buildable)
         {
-            heightMap = HeightMapGenerator.GenerateHeightMap(img, sizeX, sizeY, true);
+            heightMap = HeightMapGenerator.GenerateHeightMap(img, sizeX, sizeY, true, softenIterations);
             frontMaterial.SetTexture("_Height", heightMap);
 
             puzzlePieces = new List<GameObject>();

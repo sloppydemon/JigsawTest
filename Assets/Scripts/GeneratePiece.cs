@@ -15,6 +15,7 @@ public class GeneratePiece : MonoBehaviour
         PuzzlePiece pieceProps = go.GetComponent<PuzzlePiece>();
         points = points.Distinct().ToList();
         m_Mesh.CreateShapeFromPolygon(points, extrusion, false);
+
         if (m_Mesh.vertexCount == 0)
         {
             int retry = 0;
@@ -65,12 +66,13 @@ public class GeneratePiece : MonoBehaviour
             List<Face> newface = new List<Face>();
             newface.Add(m_Mesh.faces[0]);
             Debug.Log($"{go.name}: {m_Mesh.GetWindingOrder(m_Mesh.faces[0])}, normal of face 0:{m_Mesh.GetNormals()[0]}");
+
+            // check to see if normal of front face point inwards and flip them if they do
             if (m_Mesh.GetNormals()[0] == new Vector3(0,-1f,0))
             {
                 foreach (var face in m_Mesh.faces)
                     face.Reverse();
             }
-            IEnumerable <Face> newfaces = newface;
             m_Mesh.SetMaterial(m_Mesh.faces, cardMat);
             m_Mesh.SetMaterial(newface, frontMat);
             m_Mesh.ToMesh();
