@@ -1,30 +1,31 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.ProBuilder;
 using TMPro;
-using ProBuilder.Examples;
-using UnityEngine.ProBuilder.MeshOperations;
-using UnityEditor;
-using Unity.VisualScripting;
-using UnityEngine.ProBuilder.Shapes;
-using System.ComponentModel;
-using static UnityEngine.UI.GridLayoutGroup;
 using UnityEngine.SceneManagement;
 
 public class MeshGen : MonoBehaviour
 {
-    List<Vector3> pts;
-    GameObject imgObj;
-    public Button generateButton;
-    public Button startButton;
+    #region GameObjectReferences
+    [Header("Game Object References:")]
     public GameObject LinePrefab;
     public GameObject table;
     public GameObject piece;
+    public List<GameObject> GOsToDestroy;
+    public List<GameObject> puzzlePieces;
+    public List<GameObject> puzzlePiecesToDestroy;
+    GameObject imgObj;
+    #endregion
+
+    #region TextureVariables
+    [Header("Texture references:")]
     public Texture2D img;
     public Texture2D heightMap;
+    #endregion
+
+    #region UIReferences
+    [Header("UI references:")]
     public Slider sizeSlider;
     public Slider numberSlider;
     public TextMeshProUGUI sizeText;
@@ -35,34 +36,28 @@ public class MeshGen : MonoBehaviour
     public TextMeshProUGUI momentText;
     public TextMeshProUGUI instructTextA;
     public TextMeshProUGUI instructTextB;
+    public Button generateButton;
+    public Button startButton;
     public Button retryButton;
     public Button newSettingsButton;
-    public bool meshingFailed;
     public TMP_InputField inputNumber;
+    #endregion
+
+    #region Booleans
+    [Header("Public booleans:")]
+    public bool meshingFailed;
+    public bool buildable;
+    #endregion
+
+    #region PuzzleParameters
+    [Header("Puzzle parameters:")]
     public float sizeInCms;
     public float sizeFactor;
-    public float bezDetail;
-    public float bezDetailLines;
-    public Material cardboardMaterial;
-    public Material frontMaterial;
-    public PhysicMaterial piecePhysicalMaterial;
-    public float pieceSleepThreshold;
     public int ratioX;
     public int ratioY;
     public int numX;
     public int numY;
-    public bool buildable;
     public int gcd;
-    public Camera cam;
-    public float fieldOfViewMinimum;
-    public float fieldOfViewMaxAddend;
-    public float pieceThickness;
-    public float bezierRetryIncrementUp;
-    public float bezierRetryIncrementDown;
-    public float pieceJoinThreshold;
-    public float pieceJoinRotationThreshold;
-    public float pieceRotationSpeed;
-    public int numberOfBezierRetries;
     static float SizeFactor(float y, float x, float size)
     {
         float max = Mathf.Max(y, x);
@@ -71,10 +66,42 @@ public class MeshGen : MonoBehaviour
     float sizeX;
     float sizeY;
     public int numberOfPieces;
-    public List<GameObject> GOsToDestroy;
-    public List<GameObject> puzzlePieces;
-    public List<GameObject> puzzlePiecesToDestroy;
-    public bool offsetsCalculated;
+    #endregion
+
+    #region LinePreviewParameters
+    [Header("Preview line parameters:")]
+    public float bezDetailLines;
+    #endregion
+
+    #region MeshingParameters
+    [Header("Puzzle piece meshing parameters:")]
+    public float bezDetail;
+    public float pieceThickness;
+    public float bezierRetryIncrementUp;
+    public float bezierRetryIncrementDown;
+    public int numberOfBezierRetries;
+    #endregion
+
+    #region PuzzlePieceSettings
+    [Header("Puzzle piece parameters:")]
+    public Material cardboardMaterial;
+    public Material frontMaterial;
+    public PhysicMaterial piecePhysicalMaterial;
+    public float pieceSleepThreshold;
+    public float pieceJoinThreshold;
+    public float pieceJoinRotationThreshold;
+    public float pieceRotationSpeed;
+    #endregion
+
+    #region CameraSettings
+    [Header("Camera settings:")]
+    public Camera cam;
+    public float fieldOfViewMinimum;
+    public float fieldOfViewMaxAddend;
+    #endregion
+
+    #region AudioClips
+    [Header("Audio clip lists:")]
     public List<AudioClip> soundsImpactPiecePiece;
     public List<AudioClip> soundsImpactPieceBox;
     public List<AudioClip> soundsImpactPieceTable;
@@ -83,17 +110,17 @@ public class MeshGen : MonoBehaviour
     public List<AudioClip> soundsPickPieceBox;
     public List<AudioClip> soundsPickPieceTable;
     public List<AudioClip> soundsPieceOnFloor;
+    #endregion
 
     void Start()
     {
+        #region InitialDeclarations
         cam.gameObject.GetComponent<CameraMouse>().enabled = false;
         alertText.text = "";
         startButton.interactable = false;
         startButton.enabled = false;
         startButton.gameObject.SetActive(false);
-        offsetsCalculated = false;
         GOsToDestroy = new List<GameObject>();
-        pts = new List<Vector3>();
         sizeInCms = 80f;
         sizeSlider.maxValue = 200f;
         sizeSlider.minValue = 5f;
@@ -103,7 +130,11 @@ public class MeshGen : MonoBehaviour
         sizeX = img.width * SizeFactor(img.width, img.height, sizeInCms);
         sizeY = img.height * SizeFactor(img.width, img.height, sizeInCms);
         sizeFactor = SizeFactor(img.width, img.height, sizeInCms);
-        sizeText.text = $"{sizeX.ToString("0.0")}x{sizeY.ToString("0.0")} cm";
+        sizeText.text = $"{sizeX}x{sizeY} cm";
+        cam.fieldOfView = fieldOfViewMinimum + (sizeSlider.normalizedValue * fieldOfViewMaxAddend);
+        #endregion
+
+        #region UIDelegation
         sizeSlider.onValueChanged.AddListener(delegate { SizeSliderChange(); });
         numberSlider.onValueChanged.AddListener(delegate { NumberSliderChange(); });
         inputNumber.onEndEdit.AddListener(delegate { NumberInputChanged(inputNumber.text); });
@@ -111,8 +142,9 @@ public class MeshGen : MonoBehaviour
         startButton.onClick.AddListener(delegate { StartPuzzling(); });
         retryButton.onClick.AddListener(delegate { RetryClicked(); });
         newSettingsButton.onClick.AddListener(delegate { NewSettingsClicked(); });
-        cam.fieldOfView = fieldOfViewMinimum + (sizeSlider.normalizedValue * fieldOfViewMaxAddend);
+        #endregion
 
+        #region InitialPuzzlePreview
         gcd = PuzzlePieceCalc.GCD(img.width, img.height);
         ratioX = PuzzlePieceCalc.DimensionX(img.width, img.height);
         ratioY = PuzzlePieceCalc.DimensionY(img.width, img.height);
@@ -121,7 +153,6 @@ public class MeshGen : MonoBehaviour
         numberSlider.value = numberOfPieces;
 
         NumberSliderChange();
-
 
         imgObj = new GameObject();
         imgObj.transform.position = new Vector3(0, 8.155f, 0);
@@ -135,7 +166,6 @@ public class MeshGen : MonoBehaviour
 
         if (buildable)
         {
-            //generateButton.GetComponent <Text>().color = Color.black;
             generateButton.interactable = true;
             GenerateLines();
         }
@@ -145,9 +175,9 @@ public class MeshGen : MonoBehaviour
             {
                 Destroy(GOsToDestroy[i]);
             }
-            //generateButton.GetComponent <Text>().color = Color.grey;
             generateButton.interactable = false;
         }
+        #endregion
     }
 
     public void SizeSliderChange()
@@ -587,13 +617,6 @@ public class MeshGen : MonoBehaviour
         }
     }
 
-    //IEnumerator WaitText()
-    //{
-    //    while (startButton.enabled = false)
-    //    {
-    //        alertText.text = "Just a moment...";
-    //        yield return null;
-    //    }
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
