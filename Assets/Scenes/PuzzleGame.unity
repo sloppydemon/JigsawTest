@@ -4131,7 +4131,7 @@ MonoBehaviour:
     type: 2}
   pieceSleepThreshold: 0.5
   pieceJoinThreshold: 2
-  pieceJoinRotationThreshold: 1
+  pieceJoinRotationThreshold: 45
   pieceRotationSpeed: 4
   approxPieceSizeX: 0
   approxPieceSizeY: 0
