@@ -4,6 +4,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
+using System.Linq;
+using System;
 
 public class MeshGen : MonoBehaviour
 {
@@ -16,6 +19,7 @@ public class MeshGen : MonoBehaviour
     public List<GameObject> GOsToDestroy;
     public List<GameObject> puzzlePieces;
     public List<GameObject> puzzlePiecesToDestroy;
+    public List<GameObject> joinedPieces;
     GameObject imgObj;
     #endregion
 
@@ -28,8 +32,11 @@ public class MeshGen : MonoBehaviour
 
     #region UIReferences
     [Header("UI references:")]
-    public Slider sizeSlider;
-    public Slider numberSlider;
+    public UnityEngine.UI.Slider sizeSlider;
+    public UnityEngine.UI.Slider numberSlider;
+    public UnityEngine.UI.Slider joinedSlider;
+    public TextMeshProUGUI joinedText;
+    public TextMeshProUGUI joinedSubText;
     public TextMeshProUGUI sizeText;
     public TextMeshProUGUI sizeSubText;
     public TextMeshProUGUI numberText;
@@ -38,10 +45,10 @@ public class MeshGen : MonoBehaviour
     public TextMeshProUGUI momentText;
     public TextMeshProUGUI instructTextA;
     public TextMeshProUGUI instructTextB;
-    public Button generateButton;
-    public Button startButton;
-    public Button retryButton;
-    public Button newSettingsButton;
+    public UnityEngine.UI.Button generateButton;
+    public UnityEngine.UI.Button startButton;
+    public UnityEngine.UI.Button retryButton;
+    public UnityEngine.UI.Button newSettingsButton;
     public TMP_InputField inputNumber;
     #endregion
 
@@ -134,11 +141,13 @@ public class MeshGen : MonoBehaviour
         sizeSlider.value = sizeInCms;
         numberSlider.maxValue = 3000;
         numberSlider.minValue = 20;
+        joinedSlider.gameObject.SetActive(false);
         sizeX = img.width * SizeFactor(img.width, img.height, sizeInCms);
         sizeY = img.height * SizeFactor(img.width, img.height, sizeInCms);
         sizeFactor = SizeFactor(img.width, img.height, sizeInCms);
         sizeText.text = $"{sizeX}x{sizeY} cm";
         cam.fieldOfView = fieldOfViewMinimum + (sizeSlider.normalizedValue * fieldOfViewMaxAddend);
+        joinedPieces = new List<GameObject>();
         #endregion
 
         #region UIDelegation
@@ -149,6 +158,7 @@ public class MeshGen : MonoBehaviour
         startButton.onClick.AddListener(delegate { StartPuzzling(); });
         retryButton.onClick.AddListener(delegate { RetryClicked(); });
         newSettingsButton.onClick.AddListener(delegate { NewSettingsClicked(); });
+        joinedSlider.onValueChanged.AddListener(delegate { JoinedChanged(); });
         #endregion
 
         #region InitialPuzzlePreview
@@ -368,6 +378,9 @@ public class MeshGen : MonoBehaviour
     {
         if (buildable)
         {
+            joinedSlider.maxValue = numberOfPieces;
+            joinedSlider.minValue = 0;
+            joinedSlider.value = 0;
             heightMap = HeightMapGenerator.GenerateHeightMap(img, sizeX, sizeY, true, softenIterations);
             frontMaterial.SetTexture("_Height", heightMap);
 
@@ -573,36 +586,70 @@ public class MeshGen : MonoBehaviour
 
     public void CalculateOffsets()
     {
+        float xCalc = (sizeX / (float)numX) * 0.1f;
+        float yCalc = (sizeY / (float)numY) * 0.1f;
         for (int i = 0; i < puzzlePieces.Count; i++)
         {
             PuzzlePiece pieceProps = puzzlePieces[i].GetComponent<PuzzlePiece>();
-            Rigidbody pieceRB = puzzlePieces[i].GetComponent<Rigidbody>();
 
             if (pieceProps.hasNextBelow)
             {
-                pieceProps.nextBelowOffset = pieceProps.nextBelow.transform.position - puzzlePieces[i].transform.position;
-                Rigidbody nextRB = pieceProps.nextBelow.GetComponent<Rigidbody>();
-                pieceProps.nextBelowRotOS = nextRB.transform.eulerAngles - pieceRB.transform.eulerAngles;
+                pieceProps.nextBelowOffset = new Vector3(0, 0, -yCalc);
+                //pieceProps.nextBelowOffset = pieceProps.nextBelow.transform.position - puzzlePieces[i].transform.position;
             }
             if (pieceProps.hasNextRight)
             {
-                pieceProps.nextRightOffset = pieceProps.nextRight.transform.position - puzzlePieces[i].transform.position;
-                Rigidbody nextRB = pieceProps.nextRight.GetComponent<Rigidbody>();
-                pieceProps.nextRightRotOS = nextRB.transform.eulerAngles - pieceRB.transform.eulerAngles;
+                pieceProps.nextRightOffset = new Vector3(xCalc, 0, 0);
+                //pieceProps.nextRightOffset = pieceProps.nextRight.transform.position - puzzlePieces[i].transform.position;
             }
             if (pieceProps.hasNextAbove)
             {
-                pieceProps.nextAboveOffset = pieceProps.nextAbove.transform.position - puzzlePieces[i].transform.position;
-                Rigidbody nextRB = pieceProps.nextAbove.GetComponent<Rigidbody>();
-                pieceProps.nextAboveRotOS = nextRB.transform.eulerAngles - pieceRB.transform.eulerAngles;
+                pieceProps.nextAboveOffset = new Vector3(0, 0, yCalc);
+                //pieceProps.nextAboveOffset = pieceProps.nextAbove.transform.position - puzzlePieces[i].transform.position;
             }
             if (pieceProps.hasNextLeft)
             {
-                pieceProps.nextLeftOffset = pieceProps.nextLeft.transform.position - puzzlePieces[i].transform.position;
-                Rigidbody nextRB = pieceProps.nextLeft.GetComponent<Rigidbody>();
-                pieceProps.nextLeftRotOS = nextRB.transform.eulerAngles - pieceRB.transform.eulerAngles;
+                pieceProps.nextLeftOffset = new Vector3(-xCalc, 0, 0);
+                //pieceProps.nextLeftOffset = pieceProps.nextLeft.transform.position - puzzlePieces[i].transform.position;
             }
         }
+    }
+
+    public void AddJoined(GameObject joinedPiece)
+    {
+        joinedSlider.gameObject.SetActive(true);
+        if (!joinedPieces.Contains(joinedPiece))
+        {
+            joinedPieces.Add(joinedPiece);
+        }
+        joinedSlider.value = joinedPieces.Count;
+        JoinedChanged();
+        //return (joinedPieces.Count);
+    }
+
+    public void JoinedChanged()
+    {
+        joinedText.text = $"Joined Pieces: {joinedSlider.value}";
+        joinedSubText.text = $"({numberOfPieces-joinedSlider.value} pcs. remaining.)";
+        if (joinedPieces.Count == numberOfPieces)
+        {
+            WonGame();
+        }
+    }
+
+    public void WonGame()
+    {
+        alertText.gameObject.SetActive (true);
+        for (int i = 0; i < puzzlePieces.Count; i++)
+        {
+            puzzlePieces[i].gameObject.GetComponent<PuzzlePiece>().enabled = false;
+        }
+        joinedSlider.gameObject.SetActive(false);
+        instructTextA.gameObject.SetActive(false);
+        instructTextB.gameObject.SetActive(false);
+        joinedText.text = "Press ESC to start new game";
+        joinedSubText.text = "Press SHIFT+ESC to quit";
+        alertText.text = $"Congratulations!\nYou finished the {numberOfPieces} puzzle.";
     }
 
     IEnumerator PiecesToBox()
@@ -615,14 +662,14 @@ public class MeshGen : MonoBehaviour
         for (int i = 0; i < puzzlePieces.Count; i++)
         {
             Rigidbody tossRB = puzzlePieces[i].GetComponent<Rigidbody>(); 
-            float tossX = Random.Range(vecUL.x, vecLR.x);
-            float tossY = Random.Range(vecUL.y, vecLR.y);
-            float tossZ = Random.Range(vecUL.z, vecLR.z);
+            float tossX = UnityEngine.Random.Range(vecUL.x, vecLR.x);
+            float tossY = UnityEngine.Random.Range(vecUL.y, vecLR.y);
+            float tossZ = UnityEngine.Random.Range(vecUL.z, vecLR.z);
             tossRB.transform.position = new Vector3(tossX, tossY, tossZ);
             yield return null;
-            float rotateX = Random.Range(0f, 360f);
-            float rotateY = Random.Range(0f, 360f);
-            float rotateZ = Random.Range(0f, 360f);
+            float rotateX = UnityEngine.Random.Range(0f, 360f);
+            float rotateY = UnityEngine.Random.Range(0f, 360f);
+            float rotateZ = UnityEngine.Random.Range(0f, 360f);
             tossRB.transform.eulerAngles = new Vector3(rotateX, rotateY, rotateZ);
             yield return null;
         }

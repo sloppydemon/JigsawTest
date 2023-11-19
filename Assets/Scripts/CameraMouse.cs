@@ -65,7 +65,7 @@ public class CameraMouse : MonoBehaviour
         {
             if (closerLook)
             {
-                closerLookHeight -= Input.mouseScrollDelta.y * dollySpeed;
+                closerLookHeight -= Input.mouseScrollDelta.y * dollySpeed * Time.deltaTime;
                 if (closerLookHeight < minLookHeight)
                 {
                     closerLookHeight = minLookHeight;
@@ -77,7 +77,7 @@ public class CameraMouse : MonoBehaviour
             }
             else
             {
-                dollyLvl += Input.mouseScrollDelta.y * dollySpeed;
+                dollyLvl += Input.mouseScrollDelta.y * dollySpeed * Time.deltaTime;
                 if (dollyLvl < 0)
                 {
                     dollyLvl = 0;
@@ -94,17 +94,34 @@ public class CameraMouse : MonoBehaviour
 
         if (Input.GetMouseButtonDown(1))
         {
+            GameObject[] ghosts;
             if (!closerLook)
                 {
-                StartCoroutine (GettingACloserLook());
-                StopCoroutine (StoppingCloserLook());
-                closerLook = true;
+                    ghosts = GameObject.FindGameObjectsWithTag("PuzzlePieceGhost");
+                    StartCoroutine (GettingACloserLook());
+                    StopCoroutine (StoppingCloserLook());
+                    closerLook = true;
+                    if (ghosts.Length > 0)
+                    {
+                        for (int i = 0; i < ghosts.Length; i++)
+                        {
+                            ghosts[i].gameObject.GetComponent<PieceGhost>().closeLook = true;
+                        }
+                    }
                 }
             else
             {
+                ghosts = GameObject.FindGameObjectsWithTag("PuzzlePieceGhost");
                 StopCoroutine(GettingACloserLook());
                 StartCoroutine(StoppingCloserLook());
                 closerLook = false;
+                if (ghosts.Length > 0)
+                {
+                    for (int i = 0; i < ghosts.Length; i++)
+                    {
+                        ghosts[i].gameObject.GetComponent<PieceGhost>().closeLook = false;
+                    }
+                }
             }
         }
 
@@ -122,7 +139,7 @@ public class CameraMouse : MonoBehaviour
     {
         while (closerLerp < 1)
         {
-            closerLerp += closerLerpSpeed;
+            closerLerp += closerLerpSpeed * Time.deltaTime;
             yield return null;
         }
         if (closerLerp > 1)
@@ -136,7 +153,7 @@ public class CameraMouse : MonoBehaviour
     {
         while (closerLerp > 0)
         {
-            closerLerp -= closerLerpSpeed;
+            closerLerp -= closerLerpSpeed * Time.deltaTime;
             yield return null;
         }
         if (closerLerp < 0)

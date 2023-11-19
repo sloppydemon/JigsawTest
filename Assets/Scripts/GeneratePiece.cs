@@ -104,12 +104,6 @@ public class GeneratePiece : MonoBehaviour
                 pivot = new Vector3(go.transform.position.x + xCalc, go.transform.position.y, go.transform.position.z + yCalc);
             }
             m_Mesh.Refresh(RefreshMask.UV);
-            //int[] pivotCtrl = new int[m_Mesh.vertexCount];
-            //for (int i = 0; i < m_Mesh.vertexCount; i++)
-            //{
-            //    pivotCtrl.Append(i);
-            //}
-            //m_Mesh.CenterPivot(pivotCtrl);
             m_Mesh.SetPivot(pivot);
             m_Mesh.ToMesh();
             m_Mesh.Refresh();

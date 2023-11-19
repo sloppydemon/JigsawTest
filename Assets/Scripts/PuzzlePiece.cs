@@ -23,29 +23,38 @@ public class PuzzlePiece : MonoBehaviour
     public GameObject nextRight;
     public GameObject nextAbove;
     public GameObject nextLeft;
+    public List<GameObject> joinablePieces;
+    public List<GameObject> islandPieces;
+    public List<Vector3> islandOffsets;
+    public bool joinedBelow;
+    public bool joinedRight;
+    public bool joinedAbove;
+    public bool joinedLeft;
     public GameObject ghost;
     public OutlineQ ghostOL;
     public ProBuilderMesh ghostPM;
     public Rigidbody ghostRB;
     public MeshCollider ghostColl;
+    public PieceGhost ghostProps;
     public Vector3 nextBelowOffset;
     public Vector3 nextRightOffset;
     public Vector3 nextAboveOffset;
     public Vector3 nextLeftOffset;
-    public Vector3 nextBelowRotOS;
-    public Vector3 nextRightRotOS;
-    public Vector3 nextAboveRotOS;
-    public Vector3 nextLeftRotOS;
     public BoxCollider pieceCollider;
     public PhysicMaterial physMat;
     private Camera cam;
     private Rigidbody rb;
     private MeshCollider coll;
+    private FixedJoint jointAbove;
+    private FixedJoint jointBelow;
+    private FixedJoint jointLeft;
+    private FixedJoint jointRight;
     private GameObject cornerUL;
     private GameObject cornerLR;
     private Vector3 vecUL;
     private Vector3 vecLR;
     public bool joinable;
+    public bool joinimated;
     private bool held;
     private bool heldDown;
     public bool insideBox;
@@ -72,6 +81,12 @@ public class PuzzlePiece : MonoBehaviour
     
     void Start()
     {
+        islandPieces = new List<GameObject> ();
+        islandOffsets = new List<Vector3> ();
+        joinedAbove = false;
+        joinedBelow = false;
+        joinedLeft = false;
+        joinedRight = false;
         sndSource = gameObject.AddComponent<AudioSource>();
         joinable = false;
         gameGO = GameObject.FindGameObjectWithTag("GameController");
@@ -146,6 +161,24 @@ public class PuzzlePiece : MonoBehaviour
         ghostColl.isTrigger = true;
         ghostOL.enabled = true;
         ghostOL.OutlineColor = Color.cyan;
+        ghostProps = ghost.gameObject.AddComponent<PieceGhost>();
+        ghostProps.joinable = joinable;
+        islandOffsets.Clear();
+        if (islandPieces.Count > 0 )
+        {
+            for (int i = 0; i < islandPieces.Count; i++)
+            {
+                if (islandPieces[i].name != name)
+                {
+                    islandPieces[i].GetComponent<Rigidbody>().useGravity = false;
+                    //islandPieces[i].GetComponent<Rigidbody>().isKinematic = true;
+                    islandPieces[i].GetComponent<Rigidbody>().mass = 0.1f;
+                    islandPieces[i].GetComponent<Rigidbody>().drag = 0.0f;
+                }
+                
+            }
+        }
+        
     }
 
     private void OnMouseDrag()
@@ -239,6 +272,7 @@ public class PuzzlePiece : MonoBehaviour
         ol.enabled = false;
         StopCoroutine(PickedPiece(2f, new Vector3(0,0,0)));
         camMouse.holding = false;
+
         if (camMouse.closerLook == true)
         {
             if (hit)
@@ -249,6 +283,7 @@ public class PuzzlePiece : MonoBehaviour
                     rb.transform.eulerAngles = ghostRB.transform.eulerAngles;
                     rb.velocity = Vector3.zero;
                     joinable = true;
+                    ghostProps.joinable = joinable;
                 }
                 else
                 {
@@ -258,10 +293,8 @@ public class PuzzlePiece : MonoBehaviour
             else
             {
                 joinable = false;
+                ghostProps.joinable = joinable;
             }
-
-            
-            
             gameObject.layer = 0;
         }
         else
@@ -272,23 +305,40 @@ public class PuzzlePiece : MonoBehaviour
             {
                 if (hitinfo.collider.tag == "Table" || hitinfo.collider.tag == "PuzzlePiece")
                 {
-                    Debug.Log(Ballistics.CalculateVector(camMouse.ray.origin, 20f, hitinfo.point, -Physics.gravity.y, out lowAngle, out highAngle));
+                    Ballistics.SolveBallisticArc(camMouse.ray.origin, 20f, hitinfo.point, -Physics.gravity.y, out lowAngle, out highAngle);
                     rb.velocity += lowAngle;
                 }
                 else
                 {
-                    Debug.Log(Ballistics.CalculateVector(camMouse.ray.origin, 30f, hitinfo.point, -Physics.gravity.y, out lowAngle, out highAngle));
+                    Ballistics.SolveBallisticArc(camMouse.ray.origin, 50f, hitinfo.point, -Physics.gravity.y, out lowAngle, out highAngle);
                     rb.velocity += lowAngle;
                 }
             }
             else
             {
-                Debug.Log(Ballistics.CalculateVector(camMouse.ray.origin, 50f, camMouse.ray.origin + (camMouse.ray.direction * 50f), -Physics.gravity.y, out lowAngle, out highAngle));
+                Ballistics.SolveBallisticArc(camMouse.ray.origin, 100f, camMouse.ray.origin + (camMouse.ray.direction * 100f), -Physics.gravity.y, out lowAngle, out highAngle);
                 rb.velocity += lowAngle;
+                joinable = false;
+                ghostProps.joinable = false;
             }
         }
         gameObject.layer = 0;
         Destroy(ghost);
+        rb.angularDrag = 0.05F;
+        if (islandPieces.Count > 0)
+        {
+            for (int i = 0; i < islandPieces.Count; i++)
+            {
+                if (islandPieces[i].name != name)
+                {
+                    islandPieces[i].GetComponent<Rigidbody>().useGravity = true;
+                    //islandPieces[i].GetComponent<Rigidbody>().isKinematic = false;
+                    islandPieces[i].GetComponent<Rigidbody>().mass = (pieceSizeX * pieceSizeY) / 0.4f;
+                    islandPieces[i].GetComponent<Rigidbody>().drag = 0.1f;
+                    islandPieces[i].GetComponent<Rigidbody>().velocity = Vector3.zero;
+                }
+            }
+        }
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -299,7 +349,7 @@ public class PuzzlePiece : MonoBehaviour
             
             if (collision.impulse.magnitude > 0.15f)
             {
-                Debug.Log($"Piece on Piece collision impulse: {collision.impulse.magnitude}");
+                //Debug.Log($"Piece on Piece collision impulse: {collision.impulse.magnitude}");
                 snd = game.soundsImpactPiecePiece[Random.Range(0, game.soundsImpactPiecePiece.Count - 1)];
                 sndSource.pitch = Random.Range(0.95f, 1.05f) - collision.impulse.magnitude / 10;
                 sndSource.PlayOneShot(snd, collision.impulse.magnitude);
@@ -307,48 +357,164 @@ public class PuzzlePiece : MonoBehaviour
 
             if (joinable && collision.gameObject.GetComponent<PuzzlePiece>().joinable)
             {
+                float angleDiff = Vector3.Angle(collision.transform.eulerAngles, transform.eulerAngles);
+                Vector3 offsetCheck = collision.transform.position - transform.position;
+
                 if (hasNextAbove && collision.gameObject == nextAbove)
                 {
-                    if (Vector3.Distance((collision.rigidbody.transform.position - rb.transform.position), nextAboveOffset) < joinThreshold && Vector3.Distance((collision.rigidbody.transform.eulerAngles - rb.transform.eulerAngles), nextAboveRotOS) < joinRotThreshold)
+                    float offsetDiff = Vector3.Distance(offsetCheck, nextAboveOffset);
+                    if (offsetDiff < joinThreshold && angleDiff < joinRotThreshold)
                     {
-                        print($"{name} and {collision.gameObject.name} fit together!\nDifference from initial offset:{Vector3.Distance((collision.rigidbody.transform.position - rb.transform.position), nextAboveOffset)}\nDifference from initial rotational offset: {Vector3.Distance((collision.rigidbody.transform.eulerAngles - rb.transform.eulerAngles), nextAboveRotOS)}");
+                        if (!joinedAbove)
+                        {
+                            joinedAbove = true;
+                            collision.gameObject.GetComponent<PuzzlePiece>().joinedBelow = true;
+                            if (!islandPieces.Contains(gameObject))
+                            {
+                                islandPieces.Add(gameObject);
+                            }
+                            if (!islandPieces.Contains(collision.gameObject))
+                            {
+                                islandPieces.Add(collision.gameObject);
+                            }
+                            if (!collision.gameObject.GetComponent<PuzzlePiece>().islandPieces.Contains(gameObject))
+                            {
+                                collision.gameObject.GetComponent<PuzzlePiece>().islandPieces.Add(gameObject);
+                            }
+                            if (!collision.gameObject.GetComponent<PuzzlePiece>().islandPieces.Contains(collision.gameObject))
+                            {
+                                collision.gameObject.GetComponent<PuzzlePiece>().islandPieces.Add(collision.gameObject);
+                            }
+                            collision.gameObject.GetComponent<PuzzlePiece>().islandPieces.Distinct().ToList();
+                            transform.position = collision.transform.position + collision.gameObject.GetComponent<PuzzlePiece>().nextBelowOffset;
+                            transform.eulerAngles = collision.transform.eulerAngles;
+                            jointAbove = gameObject.AddComponent<FixedJoint>();
+                            jointAbove.connectedBody = collision.rigidbody;
+                            StartCoroutine(JoinFlash(islandPieces, game));
+                        }
+                        print($"{name} and {collision.gameObject.name} fit together!\nDifference from initial offset:{offsetDiff}\nDifference from initial rotational offset: {angleDiff}");
                     }
                     else
                     {
-                        print($"{name} and {collision.gameObject.name} fit together, but not like this.");
+                        print($"{name} and {collision.gameObject.name} fit together, but not like this.\nDifference from initial offset:{offsetDiff}\nDifference from initial rotational offset: {angleDiff}");
                     }
                 }
                 else if (hasNextBelow && collision.gameObject == nextBelow)
                 {
-                    if (Vector3.Distance((collision.rigidbody.transform.position - rb.transform.position), nextBelowOffset) < joinThreshold && Vector3.Distance((collision.rigidbody.transform.eulerAngles - rb.transform.eulerAngles), nextBelowRotOS) < joinRotThreshold)
+                    float offsetDiff = Vector3.Distance(offsetCheck, nextBelowOffset);
+                    if (offsetDiff < joinThreshold && angleDiff < joinRotThreshold)
                     {
-                        Debug.Log($"{name} and {collision.gameObject.name} fit together!\nDifference from initial offset:{Vector3.Distance((collision.rigidbody.transform.position - rb.transform.position), nextBelowOffset)}\nDifference from initial rotational offset: {Vector3.Distance((collision.rigidbody.transform.eulerAngles - rb.transform.eulerAngles), nextBelowRotOS)}");
+                        if (!joinedBelow)
+                        {
+                            joinedBelow = true;
+                            collision.gameObject.GetComponent<PuzzlePiece>().joinedAbove = true;
+                            if (!islandPieces.Contains(gameObject))
+                            {
+                                islandPieces.Add(gameObject);
+                            }
+                            if (!islandPieces.Contains(collision.gameObject))
+                            {
+                                islandPieces.Add(collision.gameObject);
+                            }
+                            if (!collision.gameObject.GetComponent<PuzzlePiece>().islandPieces.Contains(gameObject))
+                            {
+                                collision.gameObject.GetComponent<PuzzlePiece>().islandPieces.Add(gameObject);
+                            }
+                            if (!collision.gameObject.GetComponent<PuzzlePiece>().islandPieces.Contains(collision.gameObject))
+                            {
+                                collision.gameObject.GetComponent<PuzzlePiece>().islandPieces.Add(collision.gameObject);
+                            }
+                            collision.gameObject.GetComponent<PuzzlePiece>().islandPieces.Distinct().ToList();
+                            transform.position = collision.transform.position + collision.gameObject.GetComponent<PuzzlePiece>().nextAboveOffset;
+                            transform.eulerAngles = collision.transform.eulerAngles;
+                            jointBelow = gameObject.AddComponent<FixedJoint>();
+                            jointBelow.connectedBody = collision.rigidbody;
+                            StartCoroutine(JoinFlash(islandPieces, game));
+                        }
+                        print($"{name} and {collision.gameObject.name} fit together!\nDifference from initial offset:{offsetDiff}\nDifference from initial rotational offset: {angleDiff}");
                     }
                     else
                     {
-                        print($"{name} and {collision.gameObject.name} fit together, but not like this.");
+                        print($"{name} and {collision.gameObject.name} fit together, but not like this.\nDifference from initial offset:{offsetDiff}\nDifference from initial rotational offset: {angleDiff}");
                     }
                 }
                 else if (hasNextRight && collision.gameObject == nextRight)
                 {
-                    if (Vector3.Distance((collision.rigidbody.transform.position - rb.transform.position), nextRightOffset) < joinThreshold && Vector3.Distance((collision.rigidbody.transform.eulerAngles - rb.transform.eulerAngles), nextRightRotOS) < joinRotThreshold)
+                    float offsetDiff = Vector3.Distance(offsetCheck, nextRightOffset);
+                    if (offsetDiff < joinThreshold && angleDiff < joinRotThreshold)
                     {
-                        Debug.Log($"{name} and {collision.gameObject.name} fit together!\nDifference from initial offset:{Vector3.Distance((collision.rigidbody.transform.position - rb.transform.position), nextRightOffset)}\nDifference from initial rotational offset: {Vector3.Distance((collision.rigidbody.transform.eulerAngles - rb.transform.eulerAngles), nextRightRotOS)}");
+                        if (!joinedRight)
+                        {
+                            joinedRight = true;
+                            collision.gameObject.GetComponent<PuzzlePiece>().joinedLeft = true;
+                            if (!islandPieces.Contains(gameObject))
+                            {
+                                islandPieces.Add(gameObject);
+                            }
+                            if (!islandPieces.Contains(collision.gameObject))
+                            {
+                                islandPieces.Add(collision.gameObject);
+                            }
+                            if (!collision.gameObject.GetComponent<PuzzlePiece>().islandPieces.Contains(gameObject))
+                            {
+                                collision.gameObject.GetComponent<PuzzlePiece>().islandPieces.Add(gameObject);
+                            }
+                            if (!collision.gameObject.GetComponent<PuzzlePiece>().islandPieces.Contains(collision.gameObject))
+                            {
+                                collision.gameObject.GetComponent<PuzzlePiece>().islandPieces.Add(collision.gameObject);
+                            }
+                            collision.gameObject.GetComponent<PuzzlePiece>().islandPieces.Distinct().ToList();
+                            transform.position = collision.transform.position + collision.gameObject.GetComponent<PuzzlePiece>().nextLeftOffset;
+                            transform.eulerAngles = collision.transform.eulerAngles;
+                            jointRight = gameObject.AddComponent<FixedJoint>();
+                            jointRight.connectedBody = collision.rigidbody;
+                            StartCoroutine(JoinFlash(islandPieces, game));
+                        }
+                        print($"{name} and {collision.gameObject.name} fit together!\nDifference from initial offset:{offsetDiff}\nDifference from initial rotational offset: {angleDiff}");
                     }
                     else
                     {
-                        print($"{name} and {collision.gameObject.name} fit together, but not like this.");
+                        print($"{name} and {collision.gameObject.name} fit together, but not like this.\nDifference from initial offset:{offsetDiff}\nDifference from initial rotational offset: {angleDiff}");
                     }
                 }
                 else if (hasNextLeft && collision.gameObject == nextLeft)
                 {
-                    if (Vector3.Distance((collision.rigidbody.transform.position - rb.transform.position), nextLeftOffset) < joinThreshold && Vector3.Distance((collision.rigidbody.transform.eulerAngles - rb.transform.eulerAngles), nextLeftRotOS) < joinRotThreshold)
+                    float offsetDiff = Vector3.Distance(offsetCheck, nextLeftOffset);
+                    if (offsetDiff < joinThreshold && angleDiff < joinRotThreshold)
                     {
-                        Debug.Log($"{name} and {collision.gameObject.name} fit together!\nDifference from initial offset:{Vector3.Distance((collision.rigidbody.transform.position - rb.transform.position), nextLeftOffset)}\nDifference from initial rotational offset: {Vector3.Distance((collision.rigidbody.transform.eulerAngles - rb.transform.eulerAngles), nextLeftRotOS)}");
+                        if (!joinedLeft)
+                        {
+                            joinedLeft = true;
+                            collision.gameObject.GetComponent<PuzzlePiece>().joinedRight = true;
+                            if (!islandPieces.Contains(gameObject))
+                            {
+                                islandPieces.Add(gameObject);
+                            }
+                            if (!islandPieces.Contains(collision.gameObject))
+                            {
+                                islandPieces.Add(collision.gameObject);
+                            }
+                            if (!collision.gameObject.GetComponent<PuzzlePiece>().islandPieces.Contains(gameObject))
+                            {
+                                collision.gameObject.GetComponent<PuzzlePiece>().islandPieces.Add(gameObject);
+                            }
+                            if (!collision.gameObject.GetComponent<PuzzlePiece>().islandPieces.Contains(collision.gameObject))
+                            {
+                                collision.gameObject.GetComponent<PuzzlePiece>().islandPieces.Add(collision.gameObject);
+                            }
+                            islandPieces.Distinct().ToList();
+                            collision.gameObject.GetComponent<PuzzlePiece>().islandPieces.Distinct().ToList();
+                            transform.position = collision.transform.position + collision.gameObject.GetComponent<PuzzlePiece>().nextRightOffset;
+                            transform.eulerAngles = collision.transform.eulerAngles;
+                            jointLeft = gameObject.AddComponent<FixedJoint>();
+                            jointLeft.connectedBody = collision.rigidbody;
+                            StartCoroutine(JoinFlash(islandPieces, game));
+                        }
+                        print($"{name} and {collision.gameObject.name} fit together!\nDifference from initial offset:{offsetDiff}\nDifference from initial rotational offset: {angleDiff}");
                     }
                     else
                     {
-                        print($"{name} and {collision.gameObject.name} fit together, but not like this.");
+                        print($"{name} and {collision.gameObject.name} fit together, but not like this.\nDifference from initial offset:{offsetDiff}\nDifference from initial rotational offset: {angleDiff}");
                     }
                 }
             }
@@ -358,7 +524,7 @@ public class PuzzlePiece : MonoBehaviour
         {
             if (collision.impulse.magnitude > 0.35f)
             {
-                Debug.Log($"Piece on Box collision impulse: {collision.impulse.magnitude}");
+                //Debug.Log($"Piece on Box collision impulse: {collision.impulse.magnitude}");
                 snd = game.soundsImpactPieceBox[Random.Range(0, game.soundsImpactPieceBox.Count - 1)];
                 sndSource.pitch = Random.Range(0.95f, 1.05f) - collision.impulse.magnitude / 10;
                 sndSource.PlayOneShot(snd, collision.impulse.magnitude);
@@ -369,10 +535,11 @@ public class PuzzlePiece : MonoBehaviour
         {
             if (collision.impulse.magnitude > 0.05f)
             {
-                Debug.Log($"Piece on Table collision impulse: {collision.impulse.magnitude}");
+                //Debug.Log($"Piece on Table collision impulse: {collision.impulse.magnitude}");
                 snd = game.soundsImpactPieceTable[Random.Range(0, game.soundsImpactPieceTable.Count - 1)];
-                sndSource.pitch = Random.Range(1f, 1.05f) - collision.impulse.magnitude / 10;
-                sndSource.PlayOneShot(snd, collision.impulse.magnitude);
+                float newPitch = Random.Range(1f, 1.05f) - Mathf.Log(collision.impulse.magnitude*rb.mass, rb.mass)/5;
+                sndSource.pitch = newPitch;
+                sndSource.PlayOneShot(snd, 1f/newPitch);
             }
         }
     }
@@ -406,7 +573,8 @@ public class PuzzlePiece : MonoBehaviour
         Vector3 curPos = rb.transform.position;
         while (distanceToScreen > minDist)
         {
-            distanceToScreen -= 0.4f;
+            distanceToScreen -= 30f * Time.deltaTime;
+            rb.angularDrag += 5F * Time.deltaTime;  
             if (distanceToScreen < minDist)
             {
                 distanceToScreen = minDist;
@@ -414,6 +582,43 @@ public class PuzzlePiece : MonoBehaviour
             i++;
             yield return null;
         }
+    }
+
+    IEnumerator JoinFlash(List<GameObject> island, MeshGen game)
+    {
+        float lerp = 0f;
+        for (int i = 0; i < island.Count; i++)
+        {
+            island[i].GetComponent<OutlineQ>().enabled = true;
+            game.AddJoined(island[i]);
+        }
+        while ( lerp < 1f)
+        {
+            lerp += 0.2f * Time.deltaTime;
+            if (lerp > 1f)
+            {
+                lerp = 1f;
+            }
+            for (int i = 0;i < island.Count;i++)
+            {
+                island[i].GetComponent<OutlineQ>().OutlineColor = Color.Lerp(Color.clear, Color.white, lerp);
+            }
+            yield return null;
+        }
+        while (lerp > 0f)
+        {
+            lerp -= 0.2f * Time.deltaTime;
+            if (lerp < 0f)
+            {
+                lerp = 0f;
+            }
+            for (int i = 0; i < island.Count; i++)
+            {
+                island[i].GetComponent<OutlineQ>().OutlineColor = Color.Lerp(Color.clear, Color.white, lerp);
+            }
+            yield return null;
+        }
+
     }
 
 }
